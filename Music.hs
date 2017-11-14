@@ -3,6 +3,8 @@ module Music where
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
+
 type Note = Char
 data Composition =
     Harmony ([Note], [Mod])
@@ -39,9 +41,6 @@ play (Melody  (ns, ms)) = undefined
 play (Harmony (ns, ms)) = undefined
 
 
-
-
-
 -- $ musikell
 -- > m a,b,c 120
 -- > show sounds
@@ -54,3 +53,42 @@ play (Harmony (ns, ms)) = undefined
 -- h -> harmony
 -- t -> tempo (given a sound)
 -- d -> do whatever
+
+
+-- Tests
+
+tAdd :: Test
+tAdd = "add" ~:
+    TestList
+    [ "add to empty" ~: True ~?= True
+    , "add to nonempty, new id" ~: True ~?= True 
+    , "add to nonempty, existing id" ~: True ~?= True 
+    ]
+
+tRemove :: Test
+tRemove = "remove" ~:
+    TestList
+    [ "remove from empty" ~: True ~?= True 
+    , "remove from nonempty, key exists" ~: True ~?= True 
+    , "remove from nonempty, key does notexist" ~: True ~?= True 
+    ]
+
+tModify :: Test
+tModify = "modify" ~:
+    TestList
+    [ "modify empty" ~: True ~?= True 
+    , "modify nonempty, key exists" ~: True ~?= True 
+    , "modify nonempty, key does notexist" ~: True ~?= True 
+    , "inverse modify" ~: True ~?= True 
+    ]
+
+tApplyMod :: Test
+tApplyMod = "applyMod" ~:
+    TestList
+    [ "apply Tempo to Harmony" ~: True ~?= True
+    , "apply Tempo to Melody" ~: True ~?= True
+    , "apply Duration to Harmony" ~: True ~?= True
+    , "apply Duration to Melody" ~: True ~?= True
+    ]
+
+-- How _do_ you test IO? (Play)
