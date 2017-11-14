@@ -1,0 +1,29 @@
+CIS 552 Project Proposal: Musikell
+Names: Matthew Chiaravalloti (mattch), Sanjit Kalapatapu (sanjitk)
+
+Goal of project
+The goal of this project is to replicate the Euterpea library for music composition. Musikell would be a library of functions that implement the behavior of an interactive, virtual synthesizer. This library of functions would allow a user to manipulate an input signal with a given waveform, volume, and pitch using the typical components of a synthesizer. These components would include an oscillator, an envelope, a filter, a noise generator, and an LFO (low frequency oscillator). The user could chain these individual signal processing units together to produce new, unique sounds given a specified input signal. Musikell would also allow live playback of synthesized sounds through a CLI, which would allow the user to create live compositions.
+
+Use cases
+- Library for statically synthesizing sounds. The library will provide an interface for creating and manipulating sounds statically as Haskell code.
+- Interactive synthesis of sounds. We intend to create a CLI for dynamic music generation. For example, a user can start the CLI with some sound (for some duration of time) and add more sounds or alter currently running sounds with oscillators, etc.
+    - An example interaction we envision for this could be as follows (we are not committed to the specific input format yet, of course):
+    $ Musikell
+    Welcome to Interactive Musikell!
+    > play an A note and a B note
+    Now playing a chord A, B   // at this point, the computer is playing A and B tones indefinitely
+    > oscillate all A notes
+    Now oscillating all A notes   // at this point, the computer is playing A and B tones indefinitely, and the A tone is oscillating
+    > stop all B notes
+    Now stopping all B notes   // at this point, the computer is playing the oscillating A tone
+    > exit   // this will stop playback and exit
+    $
+
+Breaking problem down to modular components
+At a high level, there are really three components to this project: the signal processing module, the composition module, and the command line interface. The first component deals with the actual synthesis of sound. This component deals more with the actual signal processing of audio signals through the use of oscillators, filters, and envelopes. Assuming that the synthesis component is completed, the user can now create new sounds through the synthesis of input signals. However, how would the user create an actual song (like Twinkle Twinkle Little Star)? This is where the compositional component comes in. This component handles the musical composition of sound and allows the user to arrange their synthesized sounds in order to create structured music. Now that there we have components that allow for the synthesis and musical composition of sound, we need a command line interface to allow the user to interact with Musikell. The command line interface would allow the user to synthesize and compose music in real time using our specific Musikell command line syntax. 
+
+Testable
+We do not have the implementation specifics planned out at this stage, however we can propose several testable properties over rough ideas we have for types. We envision a sound type that represents a sound (frequency, pitch, volume) as well as several functions for manipulating sounds (oscillator, envelope, etc.). Some properties to check for the sound type include:
+    - Applying a manipulation function to a sound produces a sound with the expected manipulated values
+    - Manipulations can be composed, so applying a composition of manipulation functions to a sound produces a sound with the expected manipulated values
+    - Applying a manipulation function to a sound, then applying the “opposite” (not super well-defined at this time) manipulation function to that sound produces the original sound
