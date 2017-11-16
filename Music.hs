@@ -10,32 +10,40 @@ data Composition =
     Harmony ([Note], [Mod])
     | Melody ([Note], [Mod])
 
--- stuff that doesn't change the characteristics of the sound
--- just changes how the sound(s) are played together
+
+-- Compositional characteristics of a sound
 data Mod =
-    Tempo Int
+    Tempo Int -- Time between note hits
     | Duration Int -- quarter note, half note, whole note, etc
 
-type S = Map String Composition
+-- We are also considering adding a Mod type that alters the structural
+-- characteristics of a sound (different instruments)
 
--- add a composition to the S (currently stored sounds)
-add :: String -> Composition -> S -> S 
-add = undefined
+-- Map from String IDs to Sounds to keep track whats playing
+type World = Map String Composition 
 
--- remove a composition from the S
-remove :: String -> S -> S
-remove = undefined
+-- Add a composition to the world (of currently stored sounds)
+add :: String -> Composition -> World -> World 
+add = Map.insert
 
--- modify a composition in the S with the argued Mod
-modify :: String -> Mod -> S -> S
-modify = undefined
+-- Remove a composition from the S
+remove :: String -> World -> World
+remove = Map.delete
 
--- modify a composition
+-- Modify a composition in the world with the provided mod
+modify :: String -> Mod -> World -> World
+modify id mod world = case Map.lookup id world of
+                           Nothing -> world
+                           Just comp -> Map.insert id (applyMod mod comp) world
+
+-- Modify a composition
 applyMod :: Mod -> Composition -> Composition
 applyMod (Tempo _) h@(Harmony _) = h
 applyMod t@(Tempo _) (Melody (m, ms)) = Melody (m, t:ms)
+applyMod d@(Duration _) c@(Harmony (h, ms)) = Harmony (h, d:ms)
+applyMod d@(Duration _) c@(Melody (m, ms)) = Melody (m, d:ms)
 
--- play the sounds
+-- Play the sounds
 play :: Composition -> IO ()
 play (Melody  (ns, ms)) = undefined
 play (Harmony (ns, ms)) = undefined
