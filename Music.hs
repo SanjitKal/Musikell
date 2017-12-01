@@ -1,19 +1,37 @@
 module Music where
 
+import Euterpea
 import Data.Map (Map)
 import qualified Data.Map as Map
 
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
-type Note = Char
-data Composition =
-    Harmony ([Note], [Mod])
-    | Melody ([Note], [Mod])
+type Note = PitchClass
+
+data Composition = Harmony [Note] | Melody [Note]
+
+toMusic :: Composition -> Music Pitch
+toMusic comp = undefined
+
+parser :: String -> IO ()
+parser = undefined
+
+-- data Composition =
+--     Harmony ([Note], [Mod])
+--     | Melody ([Note], [Mod])
 
 
--- Music a
--- type Pitch = (PitchClass, Octave)
--- type Octave = Int
+
+-- Prim (Primitive a)   
+-- (Music a) :+: (Music a) infixr 5     
+-- (Music a) :=: (Music a) infixr 5     
+--  Modify Control (Music a)
+
+-- :t play = (NFData a, ToMusic1 a) => Music a -> IO ()
+
+-- toMusic :: Composition -> Music Pitch
+-- toMusic Harmony = undefined
+
 
 -- Compositional characteristics of a sound
 data Mod =
@@ -26,31 +44,31 @@ data Mod =
 -- Map from String IDs to Sounds to keep track whats playing
 type World = Map String Composition 
 
--- Add a composition to the world (of currently stored sounds)
-add :: String -> Composition -> World -> World 
-add = Map.insert
+-- -- Add a composition to the world (of currently stored sounds)
+-- add :: String -> Composition -> World -> World 
+-- add = Map.insert
 
--- Remove a composition from the S
-remove :: String -> World -> World
-remove = Map.delete
+-- -- Remove a composition from the S
+-- remove :: String -> World -> World
+-- remove = Map.delete
 
--- Modify a composition in the world with the provided mod
-modify :: String -> Mod -> World -> World
-modify id mod world = case Map.lookup id world of
-                           Nothing -> world
-                           Just comp -> Map.insert id (applyMod mod comp) world
+-- -- Modify a composition in the world with the provided mod
+-- modify :: String -> Mod -> World -> World
+-- modify id mod world = case Map.lookup id world of
+--                            Nothing -> world
+--                            Just comp -> Map.insert id (applyMod mod comp) world
 
--- Modify a composition
-applyMod :: Mod -> Composition -> Composition
-applyMod (Tempo _) h@(Harmony _) = h
-applyMod t@(Tempo _) (Melody (m, ms)) = Melody (m, t:ms)
-applyMod d@(Duration _) c@(Harmony (h, ms)) = Harmony (h, d:ms)
-applyMod d@(Duration _) c@(Melody (m, ms)) = Melody (m, d:ms)
+-- -- Modify a composition
+-- applyMod :: Mod -> Composition -> Composition
+-- applyMod (Tempo _) h@(Harmony _) = h
+-- applyMod t@(Tempo _) (Melody (m, ms)) = Melody (m, t:ms)
+-- applyMod d@(Duration _) c@(Harmony (h, ms)) = Harmony (h, d:ms)
+-- applyMod d@(Duration _) c@(Melody (m, ms)) = Melody (m, d:ms)
 
 -- Play the sounds
-play :: Composition -> IO ()
-play (Melody  (ns, ms)) = undefined
-play (Harmony (ns, ms)) = undefined
+-- play :: Composition -> IO ()
+-- play (Melody  (ns, ms)) = undefined
+-- play (Harmony (ns, ms)) = undefined
 
 
 -- $ musikell
