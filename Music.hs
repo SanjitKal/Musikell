@@ -11,6 +11,10 @@ data Composition =
     | Melody ([Note], [Mod])
 
 
+-- Music a
+-- type Pitch = (PitchClass, Octave)
+-- type Octave = Int
+
 -- Compositional characteristics of a sound
 data Mod =
     Tempo Int -- Time between note hits
