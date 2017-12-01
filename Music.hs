@@ -68,7 +68,6 @@ play (Harmony (ns, ms)) = undefined
 
 
 -- Tests
-
 tAdd :: Test
 tAdd = "add" ~:
     TestList
