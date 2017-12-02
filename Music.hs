@@ -1,8 +1,6 @@
 module Music where
 
 import Euterpea
-import Data.Map (Map)
-import qualified Data.Map as Map
 
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
@@ -14,14 +12,15 @@ type Note = PitchClass
 
 type Composition = [Note]
 
+toNote :: String -> Note
+toNote "c" = C
+toNote _ = D
+
 toPitch :: Note -> Int -> Pitch
 toPitch n o = (n, o :: Octave) :: Pitch
 
 toMusic :: (Music Pitch -> Music Pitch -> Music Pitch) -> Composition -> Music Pitch
 toMusic comb = foldr (\n comp -> (Prim (Note 1 (toPitch n 4))) `comb` comp) (Prim (Rest 1))
-
-parser :: String -> IO ()
-parser = undefined
 
 -- data Composition =
 --     Harmony ([Note], [Mod])
@@ -49,7 +48,7 @@ data Mod =
 -- characteristics of a sound (different instruments)
 
 -- Map from String IDs to Sounds to keep track whats playing
-type World = Map String Composition 
+-- type World = Map String Composition 
 
 -- -- Add a composition to the world (of currently stored sounds)
 -- add :: String -> Composition -> World -> World 
