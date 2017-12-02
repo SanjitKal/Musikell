@@ -8,9 +8,9 @@ import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 type Note = PitchClass
 
--- data Composition = Harmony [Note] | Melody [Note]
+-- type PitchClass = (Pitch, Octave)
 
--- Data 
+-- data Composition = Harmony [Note] | Melody [Note]
 
 type Composition = [Note]
 
@@ -23,6 +23,7 @@ toMusic comb = foldr (\n comp -> (Prim (Note 1 (toPitch n 4))) `comb` comp) (Pri
 parser :: String -> IO ()
 parser = undefined
 
+-- For Note instead of Prim
 -- data Composition =
 --     Harmony ([Note], [Mod])
 --     | Melody ([Note], [Mod])
