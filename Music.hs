@@ -6,9 +6,6 @@ import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 type Note = PitchClass
 
-<<<<<<< HEAD
--- type PitchClass = (Pitch, Octave)
-=======
 class Playable a where
     toMusicPitch :: a -> PitchClass
 
@@ -33,9 +30,6 @@ instance Monoid Composition where
     mempty = Melody []
 
     (Melody c1) `mappend` (Melody c2) = Melody $ c1 ++ c2
-
--- data Composition = Harmony [Note] | Melody [Note]
->>>>>>> 88ab3e60d44d280bc4a1aa16107125babd2d31d6
 
 -- data Composition = Harmony [Note] | Melody [Note]
 

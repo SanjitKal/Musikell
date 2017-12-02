@@ -7,6 +7,9 @@ What needs to be done: We need to figure out how to output actual sounds/how sou
 of our project: will there be enough depth if we just focus on the composition aspect (excluding the signal aspect)?
 
 
+-- harmony or melody paramterized by foldable a
+
+
 -- harmony quickcheck: order of notes doesn't matter!
 -- melody quickcheck: order does matter (think about representations of compositions; is there a way to create library s.t. the data level (==) matches what we considers equivalence to our ears)
 
