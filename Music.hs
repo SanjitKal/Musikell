@@ -6,11 +6,36 @@ import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 type Note = PitchClass
 
+class Playable a where
+    toMusicPitch :: a -> PitchClass
+
+-- instance Playable Note where
+--     toMusicPitch = Prim . toPitch
+
+type Chord = [Note]
+
+instance Playable Chord where
+    toMusicPitch []  = Prim $ Rest 1
+    toMusicPitch h:t = Prim $ toPitch h :=: toMusicPitch t
+
+data Composition a = Melody :: Playable a => [a]
+
+instance Playable Composition where
+    toMusicPitch = foldr (\n comp -> toMusicPitch n :+: comp) (Prim (Rest 1))
+
+instance Foldable Composition where
+    foldr f b (Melody l) = foldr f b l
+
+instance Monoid Composition where
+    mempty = Melody []
+
+    (Melody c1) `mappend` (Melody c2) = Melody $ c1 ++ c2
+
 -- data Composition = Harmony [Note] | Melody [Note]
 
 -- Data 
 
-type Composition = [Note]
+-- type Composition = [Note]
 
 toNote :: String -> Note
 toNote "c" = C
@@ -19,8 +44,8 @@ toNote _ = D
 toPitch :: Note -> Int -> Pitch
 toPitch n o = (n, o :: Octave) :: Pitch
 
-toMusic :: (Music Pitch -> Music Pitch -> Music Pitch) -> Composition -> Music Pitch
-toMusic comb = foldr (\n comp -> (Prim (Note 1 (toPitch n 4))) `comb` comp) (Prim (Rest 1))
+-- toMusic :: (Music Pitch -> Music Pitch -> Music Pitch) -> Composition -> Music Pitch
+-- toMusic comb = foldr (\n comp -> toMusicPitch n `comb` comp) (Prim (Rest 1))
 
 -- data Composition =
 --     Harmony ([Note], [Mod])
