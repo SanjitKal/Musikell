@@ -13,18 +13,25 @@ parser :: CompositionMap -> IO ()
 parser m = do
     input <- getLine
     case words input of
-        ["compose", t, ns] -> addComposition t ns
-        ["stack", cid, ns] -> stack cid ns
-        ["seq", cid, ns]   -> seq cid ns
-        ["play", cid]      -> playComposition cid
-        ["quit"]           -> return ()
-        _                  -> (putStrLn "what's up with it?") >> parser m
+        "compose":ns   -> addComposition ns
+        -- "stack":cid:ns -> stack cid ns
+        "seq":cid:ns   -> seq cid ns
+        ["play", cid]  -> playComposition cid
+        ["quit"]       -> return ()
+        _              -> (putStrLn "what's up with it?") >> parser m
 
     where
-        addComposition t ns = let (cid, m') = CM.add m $ toComposition t ns in
+        addComposition :: [String] -> IO ()
+        addComposition ns = let (cid, m') = CM.add m $ toComposition ns in
                                 (putStrLn ("new composition id = " ++ (show cid))) >> parser m'
-        stack cid ns        = combine cid (\new (h:t) -> (new <> h):t) $ toComposition ns -- HMMMMM
-        seq   cid ns        = combine cid (<>) . toComposition
+
+        -- stack :: String -> [String] -> IO ()
+        -- stack cid = combine cid (\cNew cOld -> ???) . toComposition -- HMMMMM
+
+        seq :: String -> [String] -> IO ()
+        seq cid = combine cid mappend . toComposition
+
+        combine :: String -> (Composition -> Composition -> Composition) -> Composition -> IO ()
         combine cid f c     = let cid' = readMaybe cid in
                                 case cid' of
                                     Nothing    -> putStrLn "NaN" >> parser m

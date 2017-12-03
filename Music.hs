@@ -27,6 +27,10 @@ instance Monoid Composition where
     mempty = Melody []
     (Melody c1) `mappend` (Melody c2) = Melody $ c1 ++ c2
 
+instance Monoid Chord where
+    mempty = Chord []
+    (Chord c1) `mappend` (Chord c2) = Chord $ c1 ++ c2
+
 split :: String -> String -> [String]
 split d s = map unpack (splitOn (pack d) (pack s))
 
@@ -43,41 +47,41 @@ toPrimitive :: Rational -> Note -> Int -> Primitive Pitch
 toPrimitive d n o = Note d (toPitch n o)
 
 toNote :: String -> Note
-toNote "Cff" =  Cff
-toNote "Cf"  =  Cf
-toNote "C"   =  C
-toNote "Dff" =  Dff
-toNote "Cs"  =  Cs
-toNote "Df"  =  Df
-toNote "Css" =  Css
-toNote "D"   =  D
-toNote "Eff" =  Eff
-toNote "Ds"  =  Ds
-toNote "Ef"  =  Ef
-toNote "Fff" =  Fff
-toNote "Dss" =  Dss
-toNote "E"   =  E
-toNote "Ff"  =  Ff
-toNote "Es"  =  Es
-toNote "F"   =  F
-toNote "Gff" =  Gff
-toNote "Ess" =  Ess
-toNote "Fs"  =  Fs
-toNote "Gf"  =  Gf
-toNote "Fss" =  Fss
-toNote "G"   =  G
-toNote "Aff" =  Aff
-toNote "Gs"  =  Gs
-toNote "Af"  =  Af
-toNote "Gss" =  Gss
-toNote "A"   =  A
-toNote "Bff" =  Bff
-toNote "As"  =  As
-toNote "Bf"  =  Bf
-toNote "Ass" =  Ass
-toNote "B"   =  B
-toNote "Bs"  =  Bs
-toNote "Bss" =  Bss
+toNote "cff" =  Cff
+toNote "cf"  =  Cf
+toNote "c"   =  C
+toNote "cs"  =  Cs
+toNote "css" =  Css
+toNote "dff" =  Dff
+toNote "df"  =  Df
+toNote "d"   =  D
+toNote "ds"  =  Ds
+toNote "dss" =  Dss
+toNote "eff" =  Eff
+toNote "ef"  =  Ef
+toNote "e"   =  E
+toNote "es"  =  Es
+toNote "ess" =  Ess
+toNote "fff" =  Fff
+toNote "ff"  =  Ff
+toNote "f"   =  F
+toNote "fs"  =  Fs
+toNote "fss" =  Fss
+toNote "gff" =  Gff
+toNote "gf"  =  Gf
+toNote "g"   =  G
+toNote "gs"  =  Gs
+toNote "gss" =  Gss
+toNote "aff" =  Aff
+toNote "af"  =  Af
+toNote "a"   =  A
+toNote "as"  =  As
+toNote "ass" =  Ass
+toNote "bff" =  Bff
+toNote "bf"  =  Bf
+toNote "b"   =  B
+toNote "bs"  =  Bs
+toNote "bss" =  Bss
 toNote _     = C 
 
 -- data Composition = Harmony [Note] | Melody [Note]
