@@ -23,36 +23,25 @@ parser m = do
     where
         addComposition t ns = let (cid, m') = CM.add m $ toComposition t ns in
                                 (putStrLn ("new composition id = " ++ (show cid))) >> parser m'
-        stack cid ns        = undefined
-        seq   cid ns        = undefined
-        playComposition cid = undefined
-
-            readMaybe cid :: Maybe Int in
+        stack cid ns        = combine cid (\new (h:t) -> (new <> h):t) $ toComposition ns -- HMMMMM
+        seq   cid ns        = combine cid (<>) . toComposition
+        combine cid f c     = let cid' = readMaybe cid in
                                 case cid' of
-                                    Nothing    -> (putStrLn "yoooo") >> parser m
+                                    Nothing    -> putStrLn "NaN" >> parser m
                                     Just cid'' ->
-                                        let m' = CM.update m cid'' $ toNote note in
+                                        let m' = CM.updateWith m f cid'' c in
                                         case m' of
-                                            Just m'' -> (putStrLn ("updated composition " ++ cid)) >> parser m''
-                                            Nothing  -> (putStrLn ("id " ++ cid ++ " does not exist")) >> parser m
-
-let cid' = readMaybe cid :: Maybe Int in
+                                            Nothing  -> (putStrLn $ "id " ++ cid ++ " does not exist") >> parser m
+                                            Just m'' -> (putStrLn $ "updated composition " ++ cid) >> parser m''
+        playComposition cid = let cid' = readMaybe cid :: Maybe Int in
                                 case cid' of
-                                    Nothing    -> (putStrLn "yoooo") >> parser m
+                                    Nothing    -> (putStrLn "NaN") >> parser m
                                     Just cid'' ->
                                         let comp = CM.get m cid'' in
                                         case comp of
-                                            Just ("m", c) -> (play $ toMusic (:+:) c) >> parser m
-                                            Just ("h", c) -> (play $ toMusic (:=:) c) >> parser m
-                                            Nothing       -> (putStrLn "no such cid") >> parser m
+                                            Just c  -> (play $ toMusic c) >> parser m
+                                            Nothing -> (putStrLn "no such cid") >> parser m
 
 main :: IO ()
 main = parser CM.empty
 
-
-
-
-compose h a,b,c
-> new cid is 1
- 1 d
-melodize 1 d

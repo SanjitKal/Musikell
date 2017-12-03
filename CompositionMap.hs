@@ -5,18 +5,23 @@ import Music
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-data CompositionMap = CM :: Playable a => (Int, Map Int (Composition a))
+data CompositionMap where
+    CM :: Playable a => (Int, Map Int (Composition a))
 
+-- | An empty CompositionMap
 empty :: CompositionMap
 empty = (1, Map.empty)
 
-add :: CompositionMap -> Composition -> (Int, CompositionMap)
-add (k, m) v = (k, (k + 1, Map.insert k v m))
+-- | Add the argued Composition to the argued CompositionMap. Return the ID of
+--  the added Composition along with the updated CompositionMap
+add :: Playable a => CompositionMap -> Composition a -> (Int, CompositionMap)
+add (k, m) c = (k, (k + 1, Map.insert k c m))
 
-update :: Playbalbe a => CompositionMap -> Int -> a -> Maybe CompositionMap
-update (k, m) cid n = if Map.member cid m
-                        then Just (k, Map.insertWith (<>) cid n m)
-                        else Nothing
+updateWith :: Playbalbe a => CompositionMap -> (Composition a -> Compostion a -> Composition a) -> Int -> Composition a -> Maybe CompositionMap
+updateWith (k, m) f cid c =
+    if Map.member cid m
+        then Just (k, Map.insertWith f cid n m)
+        else Nothing
 
-get :: CompositionMap -> Int -> Maybe Composition
+get :: Playable a => CompositionMap -> Int -> Maybe Composition a
 get (k, m) cid = Map.lookup cid m
