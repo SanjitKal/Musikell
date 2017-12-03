@@ -11,23 +11,19 @@ parser :: CompositionMap -> IO ()
 parser m = do
     input <- getLine
     case words input of
-        "compose":ns   -> addComposition ns
-        -- "stack":cid:ns -> stack cid ns
-        "seq":cid:ns   -> seq cid ns -- append or prepend
+        "compose":i:ns -> addComposition i ns
+        "seq":cid:i:ns -> seq cid i ns
         ["play", cid]  -> playComposition cid
         ["quit"]       -> return ()
         _              -> (putStrLn "what's up with it?") >> parser m
 
     where
-        addComposition :: [String] -> IO ()
-        addComposition ns = let (cid, m') = CM.add m $ toComposition ns in
+        addComposition :: String -> [String] -> IO ()
+        addComposition i ns = let (cid, m') = CM.add m $ toComposition i ns in
                                 (putStrLn ("new composition id = " ++ (show cid))) >> parser m'
 
-        -- stack :: String -> [String] -> IO ()
-        -- stack cid = combine cid (\cNew cOld -> ???) . toComposition -- HMMMMM
-
-        seq :: String -> [String] -> IO ()
-        seq cid = combine cid mappend . toComposition
+        seq :: String -> String -> [String] -> IO ()
+        seq cid i = combine cid mappend . toComposition i
 
         combine :: String -> (Composition -> Composition -> Composition) -> Composition -> IO ()
         combine cid f c     = let cid' = readMaybe cid in
@@ -49,4 +45,3 @@ parser m = do
 
 main :: IO ()
 main = parser CM.empty
-

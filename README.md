@@ -26,7 +26,19 @@ of our project: will there be enough depth if we just focus on the composition a
         - write the type signatures
         - add quickchecks for these
         - implement these
-    - expand Note (and Chord and Composition) type(s) to store modification data
-        - i.e. Duration, Tempo, ??
-    
+    - tempo is a function over a Composition (map Dur multiplier over each note in the chord?)
+    - Combining Compositions
+        - append C2 to C1
+        - prepend C2 to C1
+        - interleave C2 into C1
+            - (chord-by-chord?)
+            - whole melody C2 between each chord C1
+        - Stack
+            - instruments would be helpful (Modify)
+            - i.e. put drum beat behind each chord or whatever
+    - Manipulating existing Compositions
+        - intersperse
+        - reverse
+        - (list functions)
+        - tempo
 
