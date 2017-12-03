@@ -1,46 +1,88 @@
+{-# LANGUAGE GADTs #-}
+
 module Music where
 
-import Euterpea
 
+import Euterpea
+import Data.Text (splitOn, pack, unpack)
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 type Note = PitchClass
 
+data Chord = Chord [Note]
+
+data Composition = Melody [Chord]
+
 class Playable a where
-    toMusicPitch :: a -> PitchClass
-
--- instance Playable Note where
---     toMusicPitch = Prim . toPitch
-
-type Chord = [Note]
+    toMusicPitch :: a -> Music Pitch
 
 instance Playable Chord where
-    toMusicPitch []  = Prim $ Rest 1
-    toMusicPitch h:t = Prim $ toPitch h :=: toMusicPitch t
+    toMusicPitch (Chord [])  = Prim $ Rest 1
+    toMusicPitch (Chord (h:t)) = (Prim $ toPrimitive 1 h 4) :=: toMusicPitch (Chord t)
 
-data Composition a = Melody :: Playable a => [a]
-
-instance Playable Composition where
-    toMusicPitch = foldr (\n comp -> toMusicPitch n :+: comp) (Prim (Rest 1))
-
-instance Foldable Composition where
-    foldr f b (Melody l) = foldr f b l
+toMusic :: Composition -> Music Pitch
+toMusic (Melody m) = foldr (\n comp -> toMusicPitch n :+: comp) (Prim (Rest 1)) m
 
 instance Monoid Composition where
     mempty = Melody []
-
     (Melody c1) `mappend` (Melody c2) = Melody $ c1 ++ c2
+
+split :: String -> String -> [String]
+split d s = map unpack (splitOn (pack d) (pack s))
+
+toComposition :: [String] -> Composition
+toComposition = Melody . map toChord
+
+toChord :: String -> Chord
+toChord = Chord . map toNote . split ","
+
+toPitch :: Note -> Int -> Pitch
+toPitch n o = (n, o :: Octave) :: Pitch
+
+toPrimitive :: Rational -> Note -> Int -> Primitive Pitch
+toPrimitive d n o = Note d (toPitch n o)
+
+toNote :: String -> Note
+toNote "Cff" =  Cff
+toNote "Cf"  =  Cf
+toNote "C"   =  C
+toNote "Dff" =  Dff
+toNote "Cs"  =  Cs
+toNote "Df"  =  Df
+toNote "Css" =  Css
+toNote "D"   =  D
+toNote "Eff" =  Eff
+toNote "Ds"  =  Ds
+toNote "Ef"  =  Ef
+toNote "Fff" =  Fff
+toNote "Dss" =  Dss
+toNote "E"   =  E
+toNote "Ff"  =  Ff
+toNote "Es"  =  Es
+toNote "F"   =  F
+toNote "Gff" =  Gff
+toNote "Ess" =  Ess
+toNote "Fs"  =  Fs
+toNote "Gf"  =  Gf
+toNote "Fss" =  Fss
+toNote "G"   =  G
+toNote "Aff" =  Aff
+toNote "Gs"  =  Gs
+toNote "Af"  =  Af
+toNote "Gss" =  Gss
+toNote "A"   =  A
+toNote "Bff" =  Bff
+toNote "As"  =  As
+toNote "Bf"  =  Bf
+toNote "Ass" =  Ass
+toNote "B"   =  B
+toNote "Bs"  =  Bs
+toNote "Bss" =  Bss
+toNote _     = C 
 
 -- data Composition = Harmony [Note] | Melody [Note]
 
 -- type Composition = [Note]
-
-toNote :: String -> Note
-toNote "c" = C
-toNote _ = D
-
-toPitch :: Note -> Int -> Pitch
-toPitch n o = (n, o :: Octave) :: Pitch
 
 -- toMusic :: (Music Pitch -> Music Pitch -> Music Pitch) -> Composition -> Music Pitch
 -- toMusic comb = foldr (\n comp -> toMusicPitch n `comb` comp) (Prim (Rest 1))
