@@ -1,11 +1,9 @@
 module Main where
 
 import Text.Read
-
+import Parser
 import Euterpea (play)
-
 import Music
-
 import CompositionMap
 import qualified CompositionMap as CM
 
