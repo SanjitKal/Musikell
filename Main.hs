@@ -13,7 +13,7 @@ parser m = do
     case words input of
         "compose":i:ns -> addComposition i ns
         "seq":cid:i:ns -> seq cid i ns
-        "stack":cid1:cid2 -> stackCompositions cid1 cid2
+        ["stack",cid1,cid2] -> stackCompositions cid1 cid2
         ["play", cid]  -> playComposition cid
         ["quit"]       -> return ()
         _              -> (putStrLn "what's up with it?") >> parser m
@@ -37,12 +37,12 @@ parser m = do
                                             Just m'' -> (putStrLn $ "updated composition " ++ cid) >> parser m''
 
         stackCompositions :: String -> String -> IO ()
-        stackCompositions cid1 cid2 = let (cid1', cid2') = (readMaybe cid1 :: Maybe Int, readMaybe cid2 Maybe Int) in
+        stackCompositions cid1 cid2 = let (cid1', cid2') = (readMaybe cid1 :: Maybe Int, readMaybe cid2 :: Maybe Int) in
                             case (cid1', cid2') of
                                 (Just cid1'', Just cid2'') -> let (c1, c2) = (CM.get m cid1'', CM.get m cid2'') in
                                                                 case (c1, c2) of
                                                                     (Just c1', Just c2') -> let (cid, m') = CM.add m $ stack c1' c2' in
-                                                                    (putStrLn ( "new composition id = " ++ (show cid))) >> parser m'
+                                                                                                (putStrLn ( "new composition id = " ++ (show cid))) >> parser m'
                                                                     _ -> (putStrLn $ "Cannot find one or more composition IDs") >> parser m
                                 _ -> (putStrLn $ "Invalid CID") >> parser m
 

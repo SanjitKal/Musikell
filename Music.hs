@@ -2,6 +2,7 @@
 
 module Music where
 
+import Data.List
 import Euterpea
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
@@ -9,6 +10,7 @@ data Note = N (Primitive Pitch, InstrumentName)
 
 data Chord = Chord [Note]
 
+--   Composition = Melody Tempo Transpose [Chord]
 data Composition = Melody Rational Int [Chord]
 
 class Playable a where
@@ -32,3 +34,6 @@ instance Monoid Chord where
     mempty = Chord []
     (Chord c1) `mappend` (Chord c2) = Chord $ c1 ++ c2
 
+stack :: Composition -> Composition -> Composition
+stack (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans $ zipWith mappend c1 (extend c1 c2)
+    where extend l1 = take (length l1) . cycle
