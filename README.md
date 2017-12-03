@@ -18,3 +18,15 @@ of our project: will there be enough depth if we just focus on the composition a
 -- Pitch is a tuple of Picthclass and Octave; so we'll have Music a ~ Music Pitch
 
 -- haskell project structure: cabal project (like package.json or Gemfile, but for haskell)
+
+
+-- 12/2: Notes for next time:
+    - unit test what we currently have
+    - come up with the "cool modifications"
+        - write the type signatures
+        - add quickchecks for these
+        - implement these
+    - expand Note (and Chord and Composition) type(s) to store modification data
+        - i.e. Duration, Tempo, ??
+    
+

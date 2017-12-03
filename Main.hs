@@ -15,7 +15,7 @@ parser m = do
     case words input of
         "compose":ns   -> addComposition ns
         -- "stack":cid:ns -> stack cid ns
-        "seq":cid:ns   -> seq cid ns
+        "seq":cid:ns   -> seq cid ns -- append or prepend
         ["play", cid]  -> playComposition cid
         ["quit"]       -> return ()
         _              -> (putStrLn "what's up with it?") >> parser m
