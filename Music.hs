@@ -254,14 +254,3 @@ instance Arbitrary Composition where
                     (arbitrary :: Gen [Chord])  -- melody
 
     shrink (Melody tempo trans m) = liftM (Melody tempo trans) $ shrink m
-
--- QUICKCHECKS:
-
--- Unary QuickChecks:
-
-
-
-
-
--- Binary QuickChecks:
-
