@@ -13,38 +13,53 @@ import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
                         classify,stdArgs,maxSuccess,vectorOf)
 import Control.Monad (liftM,liftM2,liftM3)
 
+-- | A Note consists of a Primitive Pitch (the note to play) and an
+--      InstrumentName (the type of instrument with which to play the note).
+--      These types come from the import library Euterpea.
 data Note = N (Primitive Pitch, InstrumentName)
 
+-- | A Chord consists of a list of Notes, which are played together at the same
+--      time.
 data Chord = Chord [Note]
 
---   Composition = Melody Tempo Transpose [Chord]
+-- | A Composition consists of a tempo (a Rational number, the tempo of the
+--      underlying melody), a transpose (an Int, the transpose of the
+--      underlying melody's notes), and a list of Chords, which are played
+--      in succession of each other from the head to the tail.
 data Composition = Melody Rational Int [Chord]
 
+-- | A Playable type can be converted into a Music Pitch, which is a type from
+--      the imported Euterpea, which can be played via the machine's speakers
 class Playable a where
     toMusicPitch :: a -> Music Pitch
 
+-- | Playable Note converts the data type Note from above into a Music Pitch
+--      which can be argued to Euterpea's play function and therefore played
+--      out of the machine's speakers.
 instance Playable Note where
     toMusicPitch (N (pp, instr)) = Modify (Instrument instr) $ Prim pp 
 
+-- | Playble Chord converts the data type Chord from above into a Music Pitch
+--      which can be argued to Euterpea's play function and therefore played
+--      out of the machine's speakers.
 instance Playable Chord where
     toMusicPitch (Chord [])  = Prim $ Rest 1
     toMusicPitch (Chord (h:t)) = toMusicPitch h :=: toMusicPitch (Chord t)
 
+-- | Playable [Chord] converts a list of Chords into a sequence of playable
+--      Music Pitchs (which themselves are converted from Chords)
+instance Playable [Chord] where
+    toMusicPitch = foldr (\c comp -> toMusicPitch c :+: comp) (Prim (Rest 1))
+
+-- | converts a Composition into a Music Pitch
 toMusic :: Composition -> Music Pitch
-toMusic (Melody tempo trans m) = Modify (Tempo tempo) (Modify (Transpose trans) (foldr (\c comp -> toMusicPitch c :+: comp) (Prim (Rest 1)) m))
+toMusic (Melody tempo trans m) = wrapMusic baseMelody controls where
+    baseMelody  = toMusicPitch m
+    controls    = [(Tempo tempo), (Transpose trans)]
+    wrapMusic b = foldr (\c m -> Modify c m) b
 
--- instance Monad Chord where
---     return = Chord
-
---     (Chord c) >>= f = Chord $ f c
-
--- instance Applicative Chord where
---     pure  = return
---     (<*>) = ap
-
--- instance Functor Chord where
---     fmap = liftM
-
+-- | mapChord f c Returns a new Chord with the argued function mapped over the
+--      argued Chord's inner list
 mapChord :: (Note -> Note) -> Chord -> Chord
 mapChord f (Chord c) = Chord $ fmap f c
 
@@ -124,48 +139,57 @@ collapse (Melody tempo trans m) = Melody tempo trans $ pure $ mconcat m
 
 instance Monoid Chord where
     mempty = Chord []
+
     (Chord c1) `mappend` (Chord c2) = Chord $ c1 ++ c2
 
 instance Monoid Composition where
     mempty = Melody 0 0 []
-    (Melody tempo trans c1) `mappend` (Melody _ _ c2) = Melody tempo trans (c1 ++ c2)
 
+    (Melody tempo trans c1) `mappend` (Melody _ _ c2) =
+        Melody tempo trans $ c1 ++ c2
 
 stack :: Composition -> Composition -> Composition
-stack (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans $ zipWith mappend c1 (extend c1 c2)
-    where extend l1 = List.take (length l1) . cycle
+stack (Melody tempo trans c1) (Melody _ _ c2) =
+    Melody tempo trans $ zipWith mappend c1 (extend c1 c2) where
+        extend l1 = List.take (length l1) . cycle
 
 -- just zipWith <>
 stack2 :: Composition -> Composition -> Composition
-stack2 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans $ zipWith mappend c1 c2
+stack2 (Melody tempo trans c1) (Melody _ _ c2) =
+    Melody tempo trans $ zipWith mappend c1 c2
 
 -- just put c2 once at the beginning of c1 then return the rest of c1 unmodified
 -- if c2 is longer than c1, truncate c2
 stack3 :: Composition -> Composition -> Composition
-stack3 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (comb c1 c2)
-    where comb (x:xs) (y:ys) = (mappend x y) : comb xs ys
-          comb [] _ = []
-          comb xs [] = xs
+stack3 (Melody tempo trans c1) (Melody _ _ c2) =
+    Melody tempo trans (comb c1 c2) where
+        comb (x:xs) (y:ys) = (mappend x y) : comb xs ys
+        comb [] _          = []
+        comb xs []         = xs
 
 -- ChordA1, ChordA2, ChordB1, ChordB2, ...
 intersperse1 :: Composition -> Composition -> Composition
-intersperse1 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter1 c1 c2)
-    where inter1 (x:xs) (y:ys) = x : y : inter1 xs ys
-          inter1 [] _ = []
-          inter1 _ [] = []
+intersperse1 (Melody tempo trans c1) (Melody _ _ c2) =
+    Melody tempo trans (inter1 c1 c2) where
+        inter1 (x:xs) (y:ys) = x : y : inter1 xs ys
+        inter1 [] _          = []
+        inter1 _ []          = []
 
 -- ChordA1, c2, ChordB1, c2, ...
 intersperse2 :: Composition -> Composition -> Composition
-intersperse2 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter2 c1 c2)
-    where inter2 (x:xs) ys = [x] ++ ys ++ inter2 xs ys
-          inter2 [] _ = []
+intersperse2 (Melody tempo trans c1) (Melody _ _ c2) =
+    Melody tempo trans (inter2 c1 c2) where
+        inter2 (x:xs) ys = [x] ++ ys ++ inter2 xs ys
+        inter2 [] _     = []
 
 -- ChordA1, ChordB1, ..., Chordn1, c2, Chord(n+1)1, ..., Chord(2n)1, c2, ...
 intersperse2n :: Composition -> Composition -> Int -> Composition
-intersperse2n (Melody tempo trans c1) (Melody _ _ c2) n = Melody tempo trans (inter3 c1 c2 n num)
-    where num = mod (length c1) n
-          inter3 _ _ _ 0  = []
-          inter3 xs ys n num = (List.take n xs) ++ ys ++ inter3 (List.drop n xs) ys n (num-1)
+intersperse2n (Melody tempo trans c1) (Melody _ _ c2) n =
+    Melody tempo trans (inter3 c1 c2 n num) where
+        num = mod (length c1) n
+        inter3 _ _ _ 0     = []
+        inter3 xs ys n num =
+            (List.take n xs) ++ ys ++ inter3 (List.drop n xs) ys n (num-1)
 
 -- Arbitrary instances
 
@@ -207,14 +231,37 @@ instance Arbitrary Note where
 
 instance Arbitrary Chord where
     arbitrary = liftM Chord $ randoChord where
-        randoChord = frequency [ (1, liftM  (\n        -> [n])          (arbitrary :: Gen Note))
-                               , (1, liftM2 (\n1 n2    -> [n1, n2])     (arbitrary :: Gen Note) (arbitrary :: Gen Note))
-                               , (1, liftM3 (\n1 n2 n3 -> [n1, n2, n3]) (arbitrary :: Gen Note) (arbitrary :: Gen Note) (arbitrary :: Gen Note))
+        randoChord = frequency [ (1, oneNote)
+                               , (1, twoNotes)
+                               , (1, threeNotes)
                                ]
+        oneNote    = liftM  (\n        -> [n])
+                            (arbitrary :: Gen Note)
+        twoNotes   = liftM2 (\n1 n2    -> [n1, n2])
+                            (arbitrary :: Gen Note)
+                            (arbitrary :: Gen Note)
+        threeNotes = liftM3 (\n1 n2 n3 -> [n1, n2, n3])
+                            (arbitrary :: Gen Note)
+                            (arbitrary :: Gen Note)
+                            (arbitrary :: Gen Note)
 
     shrink (Chord l) = liftM Chord $ shrink l
 
 instance Arbitrary Composition where
-    arbitrary = liftM3 Melody (arbitrary :: Gen Rational) (arbitrary :: Gen Int) (arbitrary :: Gen [Chord])
+    arbitrary = liftM3 Melody
+                    (arbitrary :: Gen Rational) -- tempo
+                    (arbitrary :: Gen Int)      -- transpose
+                    (arbitrary :: Gen [Chord])  -- melody
 
     shrink (Melody tempo trans m) = liftM (Melody tempo trans) $ shrink m
+
+-- QUICKCHECKS:
+
+-- Unary QuickChecks:
+
+
+
+
+
+-- Binary QuickChecks:
+
