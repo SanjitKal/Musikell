@@ -148,18 +148,33 @@ instance Monoid Composition where
     (Melody tempo trans c1) `mappend` (Melody _ _ c2) =
         Melody tempo trans $ c1 ++ c2
 
+-- stack c1 c2 returns a new composition with the same tempo and trans
+--     as c1 and chord progression of the form 
+--     [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ...]
+--     where cN.K is the Kth chord of the Nth composition
+--     If length c1 < length c2, excess c2 will be truncated  
+--     If length c1 > length c2, the following chord progression forms
+--     [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n, c1.(n+1)++c2.1,c1.(n+2)++c2.2 ...]
 stack :: Composition -> Composition -> Composition
 stack (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans $ zipWith mappend c1 (extend c1 c2) where
         extend l1 = List.take (length l1) . cycle
 
--- just zipWith <>
+-- stack c1 c2 returns a new composition with the same tempo and trans
+--      as c1 and chord progression of the form
+--      [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ... ]
+--      where CN.K is the Kth chord of the Nth composition
+--      If length c1 != length c2, the longer composition is truncated
 stack2 :: Composition -> Composition -> Composition
 stack2 (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans $ zipWith mappend c1 c2
 
--- just put c2 once at the beginning of c1 then return the rest of c1 unmodified
--- if c2 is longer than c1, truncate c2
+-- stack c1 c2 returns a new composition with the same tempo and trans
+--      as c1 and chord progression of the form
+--      [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ...]
+--      where CN.K is the Kth chord of the Nth composition
+--      If length c1 < length c2, excess c2 will be truncated
+--      if length c1 > length c1, excess c1 will be appended to end
 stack3 :: Composition -> Composition -> Composition
 stack3 (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans (comb c1 c2) where
@@ -167,7 +182,11 @@ stack3 (Melody tempo trans c1) (Melody _ _ c2) =
         comb [] _          = []
         comb xs []         = xs
 
--- ChordA1, ChordA2, ChordB1, ChordB2, ...
+-- intersperse c1 c2 returns a new composition with the same tempo and trans
+--      as c1 and chord progression of the form
+--      [c1.1,c2.2,c1.2,c2.2 ... c1.n,c2.n ...] 
+--      where CN.K is the Kth chord of the Nth composition
+--      If length c1 != length c2, the longer composition is truncated
 intersperse1 :: Composition -> Composition -> Composition
 intersperse1 (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans (inter1 c1 c2) where
@@ -175,14 +194,21 @@ intersperse1 (Melody tempo trans c1) (Melody _ _ c2) =
         inter1 [] _          = []
         inter1 _ []          = []
 
--- ChordA1, c2, ChordB1, c2, ...
+-- intersperse2 c1 c2 returns a new composition with the same tempo and trans
+--      as c1 and chord progression of the form
+--      [c1.1,c2,c1.2,c2 ... c1.n,c2 ...] 
+--      where CN.K is the Kth chord of the Nth composition
 intersperse2 :: Composition -> Composition -> Composition
 intersperse2 (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans (inter2 c1 c2) where
         inter2 (x:xs) ys = [x] ++ ys ++ inter2 xs ys
         inter2 [] _     = []
 
--- ChordA1, ChordB1, ..., Chordn1, c2, Chord(n+1)1, ..., Chord(2n)1, c2, ...
+-- intersperse2n c1 c2 returns a new composition with the same tempo and trans
+--      as c1 and chord progression of the form
+--      [c1.1,c1.2 ... c1.n,c2,c1.(n+1),c1.(n+2), ... c1.2n,c2 ...] 
+--      where CN.K is the Kth chord of the Nth composition
+--      If (mod c1 n != 0), excess c1 is appended to end of comp without c2
 intersperse2n :: Int -> Composition -> Composition -> Composition
 intersperse2n n (Melody tempo trans c1) (Melody _ _ c2) =
     Melody tempo trans (inter3 c1 c2 n num) where
