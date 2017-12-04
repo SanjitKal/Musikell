@@ -196,12 +196,12 @@ intersperse2n n (Melody tempo trans c1) (Melody _ _ c2) =
 instance Arbitrary InstrumentName where
     arbitrary = elements instruments where
         instruments = [ AcousticGrandPiano
-                      , Harmonica
-                      , ElectricGrandPiano
-                      , HonkyTonkPiano
-                      , Accordion
-                      , ChorusedPiano
-                      , SlapBass2
+                      -- , Harmonica
+                      -- , ElectricGrandPiano
+                      -- , HonkyTonkPiano
+                      -- , Accordion
+                      -- , ChorusedPiano
+                      -- , SlapBass2
                       , VoiceOohs
                       ]
 
@@ -256,10 +256,11 @@ instance Arbitrary Composition where
     shrink (Melody tempo trans m) = liftM (Melody tempo trans) $ shrink m
 
 -- Random music :)
-nRandomChords :: Int -> Rational -> Int -> IO ()
+nRandomChords :: Int -> Rational -> Int -> IO Composition
 nRandomChords n tempo trans = do
     c' <- generate c
     play $ toMusic c'
+    return c'
 
     where c = liftM (Melody tempo trans)
                 (vectorOf n (arbitrary :: Gen Chord))
