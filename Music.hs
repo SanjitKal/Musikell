@@ -143,7 +143,7 @@ instance Monoid Chord where
     (Chord c1) `mappend` (Chord c2) = Chord $ c1 ++ c2
 
 instance Monoid Composition where
-    mempty = Melody 0 0 []
+    mempty = Melody 1.5 0 []
 
     (Melody tempo trans c1) `mappend` (Melody _ _ c2) =
         Melody tempo trans $ c1 ++ c2
@@ -262,4 +262,4 @@ nRandomChords n tempo trans = do
     play $ toMusic c'
 
     where c = liftM (Melody tempo trans)
-                (vectorOf n (arbitrary :: Gen Chord))   -- melody
+                (vectorOf n (arbitrary :: Gen Chord))

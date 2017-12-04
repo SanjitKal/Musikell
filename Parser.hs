@@ -2,9 +2,16 @@ module Parser where
 
 import Euterpea
 import Music
+import Numeric
 import Text.Read (readMaybe)
 import Data.Text (splitOn, pack, unpack)
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
+
+readRational :: String -> Maybe Rational
+readRational s =
+    case readSigned readFloat s of
+        [] -> Nothing
+        l  -> Just $ fst $ head l
 
 split :: String -> String -> [String]
 split d s = map unpack (splitOn (pack d) (pack s))
@@ -20,10 +27,10 @@ toNote i n = N (toPrimitive n, toInstrumentName i)
 
 toPrimitive :: String -> Primitive Pitch
 toPrimitive s = case (split "," s) of
-                     ["r", dur]     -> case readMaybe dur :: Maybe Rational of
+                     ["r", dur]     -> case readRational dur of
                                             Just d -> Rest d
                                             Nothing -> Rest 1
-                     [pc, dur, oct] -> case (readMaybe dur :: Maybe Rational, readMaybe oct :: Maybe Int) of
+                     [pc, oct, dur] -> case (readRational dur, readMaybe oct :: Maybe Int) of
                                             (Just d, Just o) -> Note d $ toPitch pc o
                                             (Just d, Nothing) -> Note d $ toPitch pc 4
                                             (Nothing, Just o) -> Note 1 $ toPitch pc o

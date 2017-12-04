@@ -8,9 +8,6 @@ import Music
 import CompositionMap
 import qualified CompositionMap as CM
 
-readRational :: String -> Maybe Rational
-readRational s = Just . fst . head $ readSigned readFloat s
-
 parser :: CompositionMap -> IO ()
 parser m = do
     input <- getLine
