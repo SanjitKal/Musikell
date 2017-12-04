@@ -96,18 +96,37 @@ intersperse2n :: Composition -> Composition -> Int -> Composition
 intersperse2n c1 c2 n = undefined
 
 instance Arbitrary InstrumentName where
-    arbitrary = elements [AcousticGrandPiano, Harmonica, ElectricGrandPiano, HonkyTonkPiano, Accordion, ChorusedPiano, SlapBass2, VoiceOohs]
+    arbitrary = elements instruments where
+        instruments = [ AcousticGrandPiano
+                      , Harmonica
+                      , ElectricGrandPiano
+                      , HonkyTonkPiano
+                      , Accordion
+                      , ChorusedPiano
+                      , SlapBass2
+                      , VoiceOohs
+                      ]
 
     shrink i = [i]
 
 instance Arbitrary (Primitive Pitch) where
-    arbitrary = frequency [ (1, liftM Rest (arbitrary :: Gen Rational)),
-                            (20, liftM3 (\d pc o -> Note d ((pc, o :: Octave) :: Pitch)) (arbitrary :: Gen Rational) (elements [Aff, Af, A, As, Ass, Cff, Cf, C, Cs, Css]) (arbitrary :: Gen Int))]
-
+    arbitrary = frequency [ (1, rest),
+                            (9, sound)] where
+        rest  = liftM Rest (arbitrary :: Gen Rational)
+        sound = liftM3 (\d pc o -> Note d ((pc, o :: Octave) :: Pitch))
+                        (elements [x,y..z])
+                        (elements [Aff, Af, A, As, Ass, Cff, Cf, C, Cs, Css])
+                        (elements [1..8])
+        x = 0.05
+        y = 0.1
+        z = 1.5
     shrink pc = [pc]
 
 instance Arbitrary Note where
-    arbitrary = liftM N $ liftM2 (,) (arbitrary :: Gen (Primitive Pitch)) (arbitrary :: Gen InstrumentName)
+    arbitrary = liftM N notes where
+        notes = liftM2 (,)
+                        (arbitrary :: Gen (Primitive Pitch))
+                        (arbitrary :: Gen InstrumentName)
 
     shrink n = [n]
 
