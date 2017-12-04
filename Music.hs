@@ -43,7 +43,7 @@ instance Playable Note where
 --      which can be argued to Euterpea's play function and therefore played
 --      out of the machine's speakers.
 instance Playable Chord where
-    toMusicPitch (Chord [])  = Prim $ Rest 1
+    toMusicPitch (Chord [])  = Prim $ Rest 0
     toMusicPitch (Chord (h:t)) = toMusicPitch h :=: toMusicPitch (Chord t)
 
 -- | Playable [Chord] converts a list of Chords into a sequence of playable

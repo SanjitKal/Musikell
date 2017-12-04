@@ -48,3 +48,5 @@ of our project: will there be enough depth if we just focus on the composition a
 - Sanjit: Binary (implement, parser, quickCheck),
             Unit test: split and CompositionMap
 
+
+another one bites the dust bass: compose ElectricBassFingered a,2,0.0625 g,2,0.0625 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 d,2,0.0625 r,0.125 e,2,0.0625 e,2,0.0625 e,2,0.0625 g,2,0.125 r,0.0625 e,2,0.0625 a,2,0.0625 r,0.25 r,0.125
