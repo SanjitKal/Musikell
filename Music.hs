@@ -9,24 +9,24 @@ import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
                         forAll,frequency,elements,sized,oneof,(==>),collect,
-                        quickCheck,sample,choose,quickCheckWith,
+                        quickCheck,sample,choose,quickCheckWith, generate,
                         classify,stdArgs,maxSuccess,vectorOf)
 import Control.Monad (liftM,liftM2,liftM3)
 
 -- | A Note consists of a Primitive Pitch (the note to play) and an
 --      InstrumentName (the type of instrument with which to play the note).
 --      These types come from the import library Euterpea.
-data Note = N (Primitive Pitch, InstrumentName)
+data Note = N (Primitive Pitch, InstrumentName) deriving (Show, Eq)
 
 -- | A Chord consists of a list of Notes, which are played together at the same
 --      time.
-data Chord = Chord [Note]
+data Chord = Chord [Note] deriving (Show, Eq)
 
 -- | A Composition consists of a tempo (a Rational number, the tempo of the
 --      underlying melody), a transpose (an Int, the transpose of the
 --      underlying melody's notes), and a list of Chords, which are played
 --      in succession of each other from the head to the tail.
-data Composition = Melody Rational Int [Chord]
+data Composition = Melody Rational Int [Chord] deriving (Show, Eq)
 
 -- | A Playable type can be converted into a Music Pitch, which is a type from
 --      the imported Euterpea, which can be played via the machine's speakers
@@ -249,8 +249,17 @@ instance Arbitrary Chord where
 
 instance Arbitrary Composition where
     arbitrary = liftM3 Melody
-                    (arbitrary :: Gen Rational) -- tempo
-                    (arbitrary :: Gen Int)      -- transpose
-                    (arbitrary :: Gen [Chord])  -- melody
+                    (liftM abs (arbitrary :: Gen Rational)) -- tempo
+                    (liftM abs (arbitrary :: Gen Int))      -- transpose
+                    (arbitrary :: Gen [Chord])              -- melody
 
     shrink (Melody tempo trans m) = liftM (Melody tempo trans) $ shrink m
+
+-- Random music :)
+nRandomChords :: Int -> Rational -> Int -> IO ()
+nRandomChords n tempo trans = do
+    c' <- generate c
+    play $ toMusic c'
+
+    where c = liftM (Melody tempo trans)
+                (vectorOf n (arbitrary :: Gen Chord))   -- melody

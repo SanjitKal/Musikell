@@ -30,4 +30,17 @@ tGet = "exec wTimes" ~: True ~?= True
 
 ----------------------- Parser Unit Tests ---------------------------------
 
+toComposition :: String -> [String] -> Composition
+
+toChord :: String -> String -> Chord
+
+toNote :: String -> String -> Note
+
+toPrimitive :: String -> Primitive Pitch
+
+toPitch :: String -> Int -> Pitch
+
+----------------------- Unary QuickChecks ---------------------------------
+
+
 ----------------------- Binary Unit Tests ---------------------------------
