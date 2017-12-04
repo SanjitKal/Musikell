@@ -51,6 +51,7 @@ instance Playable Chord where
 instance Playable [Chord] where
     toMusicPitch = foldr (\c comp -> toMusicPitch c :+: comp) (Prim (Rest 1))
 
+-- map transpose over notes (not at composition level)
 -- | converts a Composition into a Music Pitch
 toMusic :: Composition -> Music Pitch
 toMusic (Melody tempo trans m) = wrapMusic baseMelody controls where
