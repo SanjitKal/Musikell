@@ -201,3 +201,4 @@ toInstrumentName "Helicopter" = Helicopter
 toInstrumentName "Applause" = Applause
 toInstrumentName "Gunshot" = Gunshot  
 toInstrumentName "Percussion" = Percussion
+toInsturmentName _ = AcousticGrandPiano
