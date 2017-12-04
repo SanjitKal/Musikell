@@ -50,3 +50,5 @@ of our project: will there be enough depth if we just focus on the composition a
 
 
 another one bites the dust bass: compose ElectricBassFingered a,2,0.0625 g,2,0.0625 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 d,2,0.0625 r,0.125 e,2,0.0625 e,2,0.0625 e,2,0.0625 g,2,0.125 r,0.0625 e,2,0.0625 a,2,0.0625 r,0.25 r,0.125
+
+another one bites the dust drums(kinda): compose Percussion b,3,0.0625 r,0.0625 b,2,0.0625
