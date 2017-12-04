@@ -111,15 +111,17 @@ instance Arbitrary InstrumentName where
 
 instance Arbitrary (Primitive Pitch) where
     arbitrary = frequency [ (1, rest),
-                            (9, sound)] where
+                            (19, sound)] where
         rest  = liftM Rest (arbitrary :: Gen Rational)
-        sound = liftM3 (\d pc o -> Note d ((pc, o :: Octave) :: Pitch))
-                        (elements [x,y..z])
-                        (elements [Aff, Af, A, As, Ass, Cff, Cf, C, Cs, Css])
-                        (elements [1..8])
-        x = 0.05
-        y = 0.1
-        z = 1.5
+        sound = liftM2 (\pc o -> Note 0.5 ((pc, o :: Octave) :: Pitch))
+                        (elements [ Aff, Af, A, As, Ass,
+                                    Bff, Bf, B, Bs, Bss,
+                                    Cff, Cf, C, Cs, Css,
+                                    Dff, Df, D, Ds, Dss,
+                                    Eff, Ef, E, Es, Ess,
+                                    Fff, Ff, F, Fs, Fss,
+                                    Gff, Gf, G, Gs, Gss])
+                        (elements [2..7])
     shrink pc = [pc]
 
 instance Arbitrary Note where
