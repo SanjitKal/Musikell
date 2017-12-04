@@ -2,9 +2,11 @@ module Tests where
 
 import Euterpea
 
+import qualified Data.Map as DM
 import Music
 import Parser
-import CompositionMap
+import qualified CompositionMap as CM
+
 
 import Test.HUnit (runTestTT,Test(..),Assertion, (~?=), (~:), assert)
 import Test.QuickCheck (Arbitrary(..), Testable(..), Gen, elements,
@@ -19,16 +21,37 @@ runTests = undefined
 tCompMap = TestList [tEmpty, tAdd, tUpdateWith, tGet]
 
 tEmpty :: Test
-tEmpty = "" ~: True ~?= True
+tEmpty = "CM.empty" ~: (fst CM.empty, null $ snd CM.empty) ~?= (1, True)
 
 tAdd :: Test
-tAdd = "exec wFact" ~: True ~?= True
+tAdd = "CM.add" ~: TestList
+    [ "CID single" ~: fst (singleton) ~?= 1
+    , "Map single" ~: DM.lookup 1 (snd $ snd $ singleton) ~?= Just (Melody 1 1 [])
+    , "incr CID"   ~: fst (CM.add (snd $ singleton) (Melody 2 2 [])) ~?= 2
+    , "keep old" ~: DM.lookup 1 newMap ~?= Just (Melody 1 1 [])
+    , "store new" ~: DM.lookup 2 newMap ~?= Just (Melody 2 2 [])
+    ]
+        where singleton = CM.add CM.empty (Melody 1 1 [])
+              newMap = snd (snd (CM.add (snd $ singleton) (Melody 2 2 [])))
 
 tUpdateWith :: Test
-tUpdateWith = "exec wAbs" ~: True ~?= True
+tUpdateWith = "CM.updateWith" ~: TestList
+    [ "empty" ~: CM.updateWith 1 id CM.empty ~?= Nothing
+    , "id" ~: CM.updateWith 1 id (snd $ singleton) ~?= Just (snd $ singleton)
+    , "diff" ~: CM.updateWith 1 f (snd $ singleton) ~?= Just (snd $ CM.add CM.empty (Melody 2 2 []))
+    ]
+        where singleton = CM.add CM.empty (Melody 1 1 [])
+              f = (\_ -> Melody 2 2 [])
 
 tGet :: Test
-tGet = "exec wTimes" ~: True ~?= True
+tGet = "CM get" ~: TestList
+    [ "empty" ~: CM.get CM.empty 1 ~?= Nothing
+    , "single" ~: CM.get (snd $ singleton) 1 ~?= Just (Melody 1 1 [])
+    , "mult fst" ~: CM.get mult 1 ~?= Just (Melody 1 1 [])
+    , "mult snd" ~: CM.get mult 2 ~?= Just (Melody 2 2 [])
+    ]
+        where singleton = CM.add CM.empty (Melody 1 1 [])
+              mult = snd $ CM.add (snd singleton) (Melody 2 2 [])
 
 ----------------------- Parser Unit Tests ---------------------------------
 testParser :: Test
@@ -151,5 +174,3 @@ testToComposition = "toComposition" ~: TestList
 
 -- splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
 -- property?
-
------------------------ Binary Unit Tests ---------------------------------
