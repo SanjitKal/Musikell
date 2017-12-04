@@ -174,3 +174,45 @@ testToComposition = "toComposition" ~: TestList
 
 -- splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
 -- property?
+
+----------------------- Binary QuickChecks ---------------------------------
+
+-- For composition functions of the form (f c1 c2)
+
+-- Property for all binary functions: tempo and trans for resulting
+-- composition is that of c1
+
+-- stack :: Composition -> Composition -> Composition
+-- property : len c1 == len c2 => any note in c1 or c2 is in stack c1 c2
+-- at same index as in original composition
+-- property : the number of times c2 gets copied is = (len c1) mod (len c2)
+-- property : length stack c1 c2 = length c1
+
+-- stack2 :: Composition -> Composition -> Composition
+-- property : len c1 == len c2 => any note in c1 or c2 is in stack2 c1 c2
+-- property : number of occurences of any note in stack c1 c2 = number of
+--            occurences in c1 + number of occurences in c2 (if len c1 = len c2)
+-- property : all notes that occur at an index i < length c1 & i < length c2 are
+--            preserved in stack2 c1 c2
+-- property : length of stack c1 c2 = min(length c1, length c2)
+
+-- stack3 :: Composition -> Composition -> Composition
+-- property : number of occurences of any note in stack c1 c2 = number of
+--            occurences in c1 + number of occurences in c2 (if len c1 = len c2)
+
+-- intersperse1 :: Composition -> Composition -> Composition
+-- property : all even indices contain chords from c1
+-- property : all odd indices contain chords from c2
+-- property : number of occurences of any note, n, in intersperse c1 c2
+--            is equal to number of occurences of n1 in c1 + number of 
+--            in c2 occurences of n1
+
+-- intersperse2 :: Composition -> Composition -> Composition
+-- property : a chord from c1 occurs every index i | i mod (len c2) == 0
+-- property : c2 occurs n times in intersperse2 c1 c2, where n = len (c1)
+
+-- intersperse2n :: Composition -> Composition -> Composition
+-- property : c2 occurs every n indices in intersperse2n c1 c2.
+-- property: if c1 mod n != 0, intersperse2n c1 c2 always ends with excess c1, 
+--           not c2
+
