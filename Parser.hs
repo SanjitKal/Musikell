@@ -16,8 +16,8 @@ readRational s =
 split :: String -> String -> [String]
 split d s = map unpack (splitOn (pack d) (pack s))
 
-toComposition :: String -> [String] -> Composition
-toComposition i = Melody 1.5 0 . map (toChord i)
+toMelody :: String -> [String] -> Melody
+toMelody i = Melody 1.5 0 . map (toChord i)
 
 toChord :: String -> String -> Chord
 toChord i = Chord . map (toNote i) . split "|"

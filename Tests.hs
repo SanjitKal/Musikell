@@ -110,20 +110,20 @@ testToChord = "toChord" ~: TestList
         i3 = Xylophone
         n3 = Note 4 (F, 4)
 
--- toComposition :: String -> [String] -> Composition
-testToComposition :: Test
-testToComposition = "toComposition" ~: TestList
-    [ "empty"              ~: toComposition "" []                     ~?= mempty
-    , "invalid instrument" ~: toComposition ""      []                ~?= mempty
-    , "invalid note"       ~: toComposition "Flute" ["x"]             ~?= m [c2]
-    , "invalid rest"       ~: toComposition "Flute" ["r,t"]           ~?= m [c2]
-    , "single note"        ~: toComposition "Flute" ["af,2,1.5"]      ~?= m [c1]
-    , "single rest"        ~: toComposition "Flute" ["r,3"]           ~?= m [c7]
-    , "multiple notes"     ~: toComposition "Flute" ["aff,3,3|f,4,4"] ~?= m [c4]
-    , "multiple rests"     ~: toComposition "Flute" ["r,2|r,3"]       ~?= m [c5]
-    , "rests and notes"    ~: toComposition "Flute" ["aff,3,3|r,5"]   ~?= m [c6]
-    , "multiple chords"    ~: toComposition "Flute"
-        ["f,4,4", "aff,3,3|af,2,1.5", "af,2,1.5", "r,3"]              ~?= m'
+-- toMeldoy :: String -> [String] -> Composition
+teMeldoy :: Test
+teMeldoy = "toMeldoy" ~: TestList
+    [ "empty"              ~: toMeldoy "" []                     ~?= mempty
+    , "invalid instrument" ~: toMeldoy ""      []                ~?= mempty
+    , "invalid note"       ~: toMeldoy "Flute" ["x"]             ~?= m [c2]
+    , "invalid rest"       ~: toMeldoy "Flute" ["r,t"]           ~?= m [c2]
+    , "single note"        ~: toMeldoy "Flute" ["af,2,1.5"]      ~?= m [c1]
+    , "single rest"        ~: toMeldoy "Flute" ["r,3"]           ~?= m [c7]
+    , "multiple notes"     ~: toMeldoy "Flute" ["aff,3,3|f,4,4"] ~?= m [c4]
+    , "multiple rests"     ~: toMeldoy "Flute" ["r,2|r,3"]       ~?= m [c5]
+    , "rests and notes"    ~: toMeldoy "Flute" ["aff,3,3|r,5"]   ~?= m [c6]
+    , "multiple chords"    ~: toMeldoy "Flute"
+        ["f,4,4", "aff,3,3|af,2,1.5", "af,2,1.5", "r,3"]         ~?= m'
     ] where
         n1 = Note 1.5 (Af, 2)
         i1 = AcousticGrandPiano
