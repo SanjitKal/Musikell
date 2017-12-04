@@ -93,23 +93,11 @@ setInstrument i (Melody tempo trans m) = Melody tempo trans $ setI m where
 reverse :: Composition -> Composition
 reverse (Melody tempo trans m) = Melody tempo trans $ List.reverse m
 
--- | splitAt i c Returns a 2-tuple of new Compositions. Each Comoposition has
---      the same tempo and transpose as the argued Composition c. The melody of
---      the first Composition consists of the first i chords of the melody of
---      the argued Composition c. The melody of the second Composition consists
---      of the remaining chords. If i > length melody, then the second
---      Compsition will be Nothing. If i <= 0, then both compositions will be
---      Nothing. If either Composition would result as an empty melody, Nothing
---      will be returned in its place.
-splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
-splitAt i (Melody tempo trans m) =
-    case (c1, c2) of
-        ([], _)  -> (Nothing, Nothing)
-        (m1, []) -> (justMelody m1, Nothing)
-        (m1, m2) -> (justMelody m1, justMelody m2)
-    where
-        (c1, c2)   = List.splitAt i m
-        justMelody = Just . Melody tempo trans
+-- | collapse c Returns a new Composition with the same tempo and transpose as
+--      the argued Composition c, with the melody consisting of a single chord
+--      which is all other chords in the original melody stacked together.
+collapse :: Composition -> Composition
+collapse (Melody tempo trans m) = Melody tempo trans $ pure $ mconcat m
 
 -- | take i c Returns a new Composition with the same tempo and transpose as the
 --      argued Composition c, with the melody consisting of its first i chords.
@@ -129,11 +117,23 @@ drop i (Melody tempo trans m) =
         then Nothing
         else Just $ Melody tempo trans $ List.drop i m
 
--- | collapse c Returns a new Composition with the same tempo and transpose as
---      the argued Composition c, with the melody consisting of a single chord
---      which is all other chords in the original melody stacked together.
-collapse :: Composition -> Composition
-collapse (Melody tempo trans m) = Melody tempo trans $ pure $ mconcat m
+-- | splitAt i c Returns a 2-tuple of new Compositions. Each Comoposition has
+--      the same tempo and transpose as the argued Composition c. The melody of
+--      the first Composition consists of the first i chords of the melody of
+--      the argued Composition c. The melody of the second Composition consists
+--      of the remaining chords. If i > length melody, then the second
+--      Compsition will be Nothing. If i <= 0, then both compositions will be
+--      Nothing. If either Composition would result as an empty melody, Nothing
+--      will be returned in its place.
+splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
+splitAt i (Melody tempo trans m) =
+    case (c1, c2) of
+        ([], _)  -> (Nothing, Nothing)
+        (m1, []) -> (justMelody m1, Nothing)
+        (m1, m2) -> (justMelody m1, justMelody m2)
+    where
+        (c1, c2)   = List.splitAt i m
+        justMelody = Just . Melody tempo trans
 
 -- BINARY COMPOSITION OPERATIONS:
 

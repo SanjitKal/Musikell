@@ -16,11 +16,11 @@ empty = (1, Map.empty)
 add :: CompositionMap -> Composition -> (Int, CompositionMap)
 add (k, m) c = (k, (k + 1, Map.insert k c m))
 
-updateWith :: CompositionMap -> (Composition -> Composition-> Composition) -> Int -> Composition -> Maybe CompositionMap
-updateWith (k, m) f cid c =
-    if Map.member cid m
-        then Just (k, Map.insertWith f cid c m)
-        else Nothing
+updateWith :: Int -> (Composition -> Composition) -> CompositionMap -> Maybe CompositionMap
+updateWith cid f (k, m) =
+    case Map.lookup cid m of
+        Just c -> Just (k, Map.insert cid (f c) m)
+        _      -> Nothing
 
 get :: CompositionMap -> Int -> Maybe Composition
 get (k, m) cid = Map.lookup cid m
