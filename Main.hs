@@ -11,9 +11,15 @@ parser :: CompositionMap -> IO ()
 parser m = do
     input <- getLine
     case words input of
-        "compose":i:ns        -> addComposition i ns
-        ["seq", cid1, cid2]   -> seqCompositions cid1 cid2
-        ["stack", cid1, cid2] -> stackCompositions cid1 cid2
+        "compose":i:ns        -> let (cid, m') = CM.add m $ toComposition i ns in
+                                (putStrLn ("new composition id = " ++ (show cid))) >> parser m'
+        ["seq", cid1, cid2]   -> combine cid1 cid2 mappend 
+        ["stack", cid1, cid2] -> combine cid1 cid2 stack3
+        ["stackCycle", cid1, cid2]-> combine cid1 cid2 stack
+        ["stackTruncate", cid1, cid2] -> combine cid1 cid2 stack2
+        ["intersperse1", cid1, cid2] -> combine cid1 cid2 intersperse1
+        ["intersperse2", cid1, cid2] -> combine cid1 cid2 intersperse2
+        ["intersperse2n", cid1, cid2, n] -> intersperse2nCompositions cid1 cid2 n
         ["play", cid]         -> playComposition cid
         ["quit"]              -> return ()
         _                     -> (putStrLn "what's up with it?") >> parser m
@@ -23,11 +29,10 @@ parser m = do
         addComposition i ns = let (cid, m') = CM.add m $ toComposition i ns in
                                 (putStrLn ("new composition id = " ++ (show cid))) >> parser m'
 
-        seqCompositions :: String -> String -> IO ()
-        seqCompositions cid1 cid2 = combine cid1 cid2 mappend 
-
-        stackCompositions :: String -> String -> IO ()
-        stackCompositions cid1 cid2 = combine cid1 cid2 stack
+        intersperse2nCompositions :: String -> String -> String -> IO ()
+        intersperse2nCompositions cid1 cid2 n = case readMaybe n of
+                                                     Just n' -> combine cid1 cid2 (intersperse2n n')
+                                                     Nothing -> putStrLn "Invalid step"
 
         combine :: String -> String -> (Composition -> Composition -> Composition) -> IO ()
         combine cid1 cid2 f = let (cid1', cid2') = (readMaybe cid1 :: Maybe Int, readMaybe cid2 :: Maybe Int) in
