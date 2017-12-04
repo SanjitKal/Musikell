@@ -130,29 +130,42 @@ instance Monoid Composition where
     mempty = Melody 0 0 []
     (Melody tempo trans c1) `mappend` (Melody _ _ c2) = Melody tempo trans (c1 ++ c2)
 
+
 stack :: Composition -> Composition -> Composition
 stack (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans $ zipWith mappend c1 (extend c1 c2)
     where extend l1 = List.take (length l1) . cycle
 
 -- just zipWith <>
 stack2 :: Composition -> Composition -> Composition
-stack2 c1 c2 = undefined
+stack2 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans $ zipWith mappend c1 c2
 
 -- just put c2 once at the beginning of c1 then return the rest of c1 unmodified
+-- if c2 is longer than c1, truncate c2
 stack3 :: Composition -> Composition -> Composition
-stack3 c1 c2 = undefined
+stack3 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (comb c1 c2)
+    where comb (x:xs) (y:ys) = (mappend x y) : comb xs ys
+          comb [] _ = []
+          comb xs [] = xs
 
 -- ChordA1, ChordA2, ChordB1, ChordB2, ...
 intersperse1 :: Composition -> Composition -> Composition
-intersperse1 c1 c2 = undefined
+intersperse1 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter1 c1 c2)
+    where inter1 (x:xs) (y:ys) = x : y : inter1 xs ys
+          inter1 [] _ = []
+          inter1 _ [] = []
 
 -- ChordA1, c2, ChordB1, c2, ...
 intersperse2 :: Composition -> Composition -> Composition
-intersperse2 c1 c2 = undefined
+intersperse2 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter2 c1 c2)
+    where inter2 (x:xs) ys = [x] ++ ys ++ inter2 xs ys
+          inter2 [] _ = []
 
 -- ChordA1, ChordB1, ..., Chordn1, c2, Chord(n+1)1, ..., Chord(2n)1, c2, ...
 intersperse2n :: Composition -> Composition -> Int -> Composition
-intersperse2n c1 c2 n = undefined
+intersperse2n (Melody tempo trans c1) (Melody _ _ c2) n = Melody tempo trans (inter3 c1 c2 n num)
+    where num = mod (length c1) n
+          inter3 _ _ _ 0  = []
+          inter3 xs ys n num = (List.take n xs) ++ ys ++ inter3 (List.drop n xs) ys n (num-1)
 
 -- Arbitrary instances
 
