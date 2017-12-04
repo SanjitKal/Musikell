@@ -122,6 +122,34 @@ testToComposition = "toComposition" ~: TestList
         m' = m [c8, c9, c1, c7]
 
 ----------------------- Unary QuickChecks ---------------------------------
+-- setTempo :: Rational -> Composition -> Composition
+-- property: setTempo to random Rational, tempo is changed
 
+-- modifyTempo :: Rational -> Composition -> Composition
+-- property: add or subtract random Rational, tempo is changed
+
+-- transpose :: Int -> Composition -> Composition
+-- property: setTranspose to random Int, trans is changed
+
+-- setInstrument :: InstrumentName -> Composition -> Composition
+-- property: setInstrument to random InstrumentName, instr is changed for every Note
+
+-- reverse :: Composition -> Composition
+-- property: reverse reverse is same
+-- property: reverse is reversed?
+-- property: reverse is same length
+
+-- collapse :: Composition -> Composition
+-- property: collapse still contains all same notes
+-- property: collapse is length 1 afterward (if it was at least length 1 before)
+
+-- take :: Int -> Composition -> Maybe Composition
+-- property: take of random Int is length of random Int after (or less)
+
+-- drop :: Int -> Composition -> Maybe Composition
+-- property? 
+
+-- splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
+-- property?
 
 ----------------------- Binary Unit Tests ---------------------------------
