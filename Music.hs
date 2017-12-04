@@ -10,7 +10,7 @@ import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
                         forAll,frequency,elements,sized,oneof,(==>),collect,
                         quickCheck,sample,choose,quickCheckWith,
-                        classify,stdArgs,maxSuccess)
+                        classify,stdArgs,maxSuccess,vectorOf)
 import Control.Monad (liftM,liftM2,liftM3)
 
 data Note = N (Primitive Pitch, InstrumentName)
@@ -110,10 +110,10 @@ instance Arbitrary InstrumentName where
     shrink i = [i]
 
 instance Arbitrary (Primitive Pitch) where
-    arbitrary = frequency [ (1, rest),
-                            (19, sound)] where
+    arbitrary = frequency [ (0, rest),
+                            (10, sound)] where
         rest  = liftM Rest (arbitrary :: Gen Rational)
-        sound = liftM2 (\pc o -> Note 0.5 ((pc, o :: Octave) :: Pitch))
+        sound = liftM (\pc -> Note 1.0 ((pc, 4 :: Octave) :: Pitch))
                         (elements [ Aff, Af, A, As, Ass,
                                     Bff, Bf, B, Bs, Bss,
                                     Cff, Cf, C, Cs, Css,
@@ -121,7 +121,6 @@ instance Arbitrary (Primitive Pitch) where
                                     Eff, Ef, E, Es, Ess,
                                     Fff, Ff, F, Fs, Fss,
                                     Gff, Gf, G, Gs, Gss])
-                        (elements [2..7])
     shrink pc = [pc]
 
 instance Arbitrary Note where
@@ -133,7 +132,11 @@ instance Arbitrary Note where
     shrink n = [n]
 
 instance Arbitrary Chord where
-    arbitrary = liftM Chord $ (arbitrary :: Gen [Note])
+    arbitrary = liftM Chord $ randoChord where
+        randoChord = frequency [ (1, liftM  (\n        -> [n])          (arbitrary :: Gen Note))
+                               , (1, liftM2 (\n1 n2    -> [n1, n2])     (arbitrary :: Gen Note) (arbitrary :: Gen Note))
+                               , (1, liftM3 (\n1 n2 n3 -> [n1, n2, n3]) (arbitrary :: Gen Note) (arbitrary :: Gen Note) (arbitrary :: Gen Note))
+                               ]
 
     shrink (Chord l) = liftM Chord $ shrink l
 
