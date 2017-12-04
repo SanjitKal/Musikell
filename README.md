@@ -42,3 +42,9 @@ of our project: will there be enough depth if we just focus on the composition a
         - (list functions)
         - tempo
 
+
+- Matthew: Unary (implement, parser, quickCheck),
+            Unit test: toComposition (and dependents)
+- Sanjit: Binary (implement, parser, quickCheck),
+            Unit test: split and CompositionMap
+

@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, FlexibleInstances #-}
 
 module Music where
 
@@ -6,6 +6,12 @@ import Data.List
 import qualified Data.List as List
 import Euterpea
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
+
+import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
+                        forAll,frequency,elements,sized,oneof,(==>),collect,
+                        quickCheck,sample,choose,quickCheckWith,
+                        classify,stdArgs,maxSuccess)
+import Control.Monad (liftM,liftM2,liftM3)
 
 data Note = N (Primitive Pitch, InstrumentName)
 
@@ -88,3 +94,30 @@ intersperse2 c1 c2 = undefined
 -- ChordA1, ChordB1, ..., Chordn1, c2, Chord(n+1)1, ..., Chord(2n)1, c2, ...
 intersperse2n :: Composition -> Composition -> Int -> Composition
 intersperse2n c1 c2 n = undefined
+
+instance Arbitrary InstrumentName where
+    arbitrary = elements [AcousticGrandPiano, Harmonica, ElectricGrandPiano, HonkyTonkPiano, Accordion, ChorusedPiano, SlapBass2, VoiceOohs]
+
+    shrink i = [i]
+
+instance Arbitrary (Primitive Pitch) where
+    arbitrary = frequency [ (1, liftM Rest (arbitrary :: Gen Rational)),
+                            (20, liftM3 (\d pc o -> Note d ((pc, o :: Octave) :: Pitch)) (arbitrary :: Gen Rational) (elements [Aff, Af, A, As, Ass, Cff, Cf, C, Cs, Css]) (arbitrary :: Gen Int))]
+
+    shrink pc = [pc]
+
+instance Arbitrary Note where
+    arbitrary = liftM N $ liftM2 (,) (arbitrary :: Gen (Primitive Pitch)) (arbitrary :: Gen InstrumentName)
+
+    shrink n = [n]
+
+instance Arbitrary Chord where
+    arbitrary = liftM Chord $ (arbitrary :: Gen [Note])
+
+    shrink (Chord l) = liftM Chord $ shrink l
+
+instance Arbitrary Composition where
+    arbitrary = liftM3 Melody (arbitrary :: Gen Rational) (arbitrary :: Gen Int) (arbitrary :: Gen [Chord])
+
+    shrink (Melody tempo trans m) = liftM (Melody tempo trans) $ shrink m
+
