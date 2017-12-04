@@ -102,8 +102,8 @@ intersperse2 (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter
           inter2 [] _ = []
 
 -- ChordA1, ChordB1, ..., Chordn1, c2, Chord(n+1)1, ..., Chord(2n)1, c2, ...
-intersperse2n :: Composition -> Composition -> Int -> Composition
-intersperse2n (Melody tempo trans c1) (Melody _ _ c2) n = Melody tempo trans (inter3 c1 c2 n num)
+intersperse2n :: Int -> Composition -> Composition -> Composition
+intersperse2n n (Melody tempo trans c1) (Melody _ _ c2) = Melody tempo trans (inter3 c1 c2 n num)
     where num = mod (length c1) n
           inter3 _ _ _ 0  = []
           inter3 xs ys n num = (List.take n xs) ++ ys ++ inter3 (List.drop n xs) ys n (num-1)
