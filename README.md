@@ -55,12 +55,13 @@ another one bites the dust drums(kinda): compose Percussion b,3,0.0625 r,0.0625 
 
 Runaway drumbeat:
 melodize Percussion r,64.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0
-setTempo 6.0 MID
+setTempo 8.0 MID1
 
 Runaway piano:
 melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0 e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
+setTempo 2.0 MID2
 
 Runaway:
-compose <piano> <drumbeat>
+compose MID1 MID2
 
 play c CID
