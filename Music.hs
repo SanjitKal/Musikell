@@ -251,9 +251,9 @@ sperse c1 c2 = foldr f ([],[]) (zip c1 c2)
 --      longest note in the argued chord
 gap :: Chord -> Chord
 gap (Chord ns) = Chord [N (Rest (len 0 ns), AcousticGrandPiano)]
-    where len 0 ((N (Rest dur, _)):xs) = len (max dur 0) xs
+    where len n [] = n
+          len 0 ((N (Rest dur, _)):xs) = len (max dur 0) xs
           len 0 ((N (Note dur _, _)):xs) = len (max dur 0) xs
-          len n [] = n 
  
 -- -- intersperse2 m1 m2 returns a new composition with the same tempo and trans
 -- --      as m1 and chord progression of the form

@@ -15,7 +15,7 @@ parser mm cm = do
     input <- getLine
     case words input of
         "melodize":i:ns                  -> addMelody i ns
-        ["compose", mid1, mid2]          -> compose mid1 mid2
+        ["compose", mid1, mid2]          -> compose Music.stack mid1 mid2
         ["setTempo", t, mid]             -> update mid (readRational t) setTempo
         ["modifyTempo", d, mid]          -> update mid (readRational d) modifyTempo
         ["transpose", t, mid]            -> update mid (readMaybe t) transpose
@@ -27,12 +27,12 @@ parser mm cm = do
         -- ["drop", i, mid]                 -> update'' mid i Music.drop
         -- ["splitAt", i, mid]              -> addSplit mid i
         -- ["seq", mid1, mid2]              -> combine mid1 mid2 mappend 
-        -- ["stack", cid1, cid2]            -> combine cid1 cid2 stack3
-        -- ["stackCycle", cid1, cid2]       -> combine cid1 cid2 stack
-        -- ["stackTruncate", cid1, cid2]    -> combine cid1 cid2 stack2
-        -- ["intersperse1", cid1, cid2]     -> combine cid1 cid2 intersperse1
-        -- ["intersperse2", cid1, cid2]     -> combine cid1 cid2 intersperse2
-        -- ["intersperse2n", cid1, cid2, n] -> intersperse2nCompositions cid1 cid2 n
+        ["stackCycle", mid1, mid2]       -> compose stackCycle mid1 mid2
+        ["stackTruncate", mid1, mid2]    -> compose stackTruncate mid1 mid2
+        ["stackPreserve", mid1, mid2]    -> compose stackPreserve mid1 mid2
+        ["intersperse1", mid1, mid2]     -> compose intersperse1 mid1 mid2
+        ["intersperse2", mid1, mid2]     -> compose intersperse2 mid1 mid2
+        ["intersperse2n", mid1, mid2, n] -> intersperse2nCompositions mid1 mid2 n
         ["play", "m", mid]                    -> playMelody mid
         ["play", "c", cid]                    -> playComposition cid
         ["quit"]                         -> return ()
@@ -43,12 +43,14 @@ parser mm cm = do
         addMelody i ns = let (mid, mm') = IM.add mm $ toMelody i ns in
                                 (putStrLn ("new melody id = " ++ (show mid))) >> parser mm' cm
 
-        compose :: String -> String -> IO ()
-        compose mid1 mid2 = case (readMaybe mid1, readMaybe mid2) of
+
+
+        compose :: (Melody -> Melody -> Composition) -> String -> String -> IO ()
+        compose f mid1 mid2 = case (readMaybe mid1, readMaybe mid2) of
                                 (Just mid1', Just mid2') ->
                                     case (IM.get mm mid1', IM.get mm mid2') of
                                         (Just m1, Just m2) ->
-                                            let (cid, cm') = IM.add cm $ Music.stack m1 m2 in
+                                            let (cid, cm') = IM.add cm $ f m1 m2 in
                                             (putStrLn ("new composition id = " ++ (show cid))) >> parser mm cm'
                                         _ -> (putStrLn "Invalid") >> parser mm cm
                                 _ -> (putStrLn "Invalid") >> parser mm cm
@@ -62,6 +64,31 @@ parser mm cm = do
                                         Just mm' -> (putStrLn $ "Updated " ++ mid) >> parser mm' cm
                                         _       -> (putStrLn "Invalid") >> parser mm cm
                                 _ -> (putStrLn "Invalid, yo") >> parser mm cm
+
+        intersperse2nCompositions :: String -> String -> String -> IO ()
+        intersperse2nCompositions mid1 mid2 n = case readMaybe n of
+                                                     Just n' -> compose (intersperse2n n') mid1 mid2
+                                                     Nothing -> putStrLn "Invalid step"
+
+        playMelody :: String -> IO ()
+        playMelody mid = let mid' = readMaybe mid :: Maybe Int in
+                                case mid' of
+                                    Nothing    -> (putStrLn "NaN") >> parser mm cm
+                                    Just mid'' ->
+                                        let mel = IM.get mm mid'' in
+                                        case mel of
+                                            Just m  -> (play $ toMusicPitch m) >> parser mm cm
+                                            Nothing -> (putStrLn "no such mid") >> parser mm cm
+
+        playComposition :: String -> IO ()
+        playComposition cid = let cid' = readMaybe cid :: Maybe Int in
+                                case cid' of
+                                    Nothing    -> (putStrLn "NaN") >> parser mm cm
+                                    Just cid'' ->
+                                        let comp = IM.get cm cid'' in
+                                        case comp of
+                                            Just c  -> (play $ toMusicPitch c) >> parser mm cm
+                                            Nothing -> (putStrLn "no such cid") >> parser mm cm
 
         -- -- this will eventually not exist:
         -- update' :: String -> (Composition -> Composition) -> IO ()
@@ -104,10 +131,6 @@ parser mm cm = do
         --                             _ -> (putStrLn "Invalid") >> parser m
         --                     _ -> (putStrLn "Invalid") >> parser m
 
-        -- intersperse2nCompositions :: String -> String -> String -> IO ()
-        -- intersperse2nCompositions cid1 cid2 n = case readMaybe n of
-        --                                              Just n' -> combine cid1 cid2 (intersperse2n n')
-        --                                              Nothing -> putStrLn "Invalid step"
 
         -- combine :: String -> String -> (Composition -> Composition -> Composition) -> IO ()
         -- combine cid1 cid2 f = let (cid1', cid2') = (readMaybe cid1 :: Maybe Int, readMaybe cid2 :: Maybe Int) in
@@ -118,26 +141,6 @@ parser mm cm = do
         --                                                                                         (putStrLn ( "new composition id = " ++ (show cid))) >> parser m'
         --                                                                 _ -> (putStrLn $ "Cannot find one or more composition IDs") >> parser m
         --                             _ -> (putStrLn $ "Invalid CID") >> parser m
-
-        playMelody :: String -> IO ()
-        playMelody mid = let mid' = readMaybe mid :: Maybe Int in
-                                case mid' of
-                                    Nothing    -> (putStrLn "NaN") >> parser mm cm
-                                    Just mid'' ->
-                                        let mel = IM.get mm mid'' in
-                                        case mel of
-                                            Just m  -> (play $ toMusicPitch m) >> parser mm cm
-                                            Nothing -> (putStrLn "no such mid") >> parser mm cm
-
-        playComposition :: String -> IO ()
-        playComposition cid = let cid' = readMaybe cid :: Maybe Int in
-                                case cid' of
-                                    Nothing    -> (putStrLn "NaN") >> parser mm cm
-                                    Just cid'' ->
-                                        let comp = IM.get cm cid'' in
-                                        case comp of
-                                            Just c  -> (play $ toMusicPitch c) >> parser mm cm
-                                            Nothing -> (putStrLn "no such cid") >> parser mm cm
 
 main :: IO ()
 main = parser IM.empty IM.empty
