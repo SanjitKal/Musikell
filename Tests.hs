@@ -6,6 +6,7 @@ import qualified Data.Map as DM
 import Music
 import Parser
 import qualified CompositionMap as CM
+import qualified IncrMap as IM
 
 
 import Test.HUnit (runTestTT,Test(..),Assertion, (~?=), (~:), assert)
@@ -21,41 +22,41 @@ runTests = undefined
 tCompMap = TestList [tEmpty, tAdd, tUpdateWith, tGet]
 
 tEmpty :: Test
-tEmpty = "CM.empty" ~: (fst CM.empty, null $ snd CM.empty) ~?= (1, True)
+tEmpty = "IM.empty" ~: (fst IM.empty, null $ snd IM.empty) ~?= (1, True)
 
 tAdd :: Test
-tAdd = "CM.add" ~: TestList
+tAdd = "IM.add" ~: TestList
     [ "CID single" ~: fst (singleton) ~?= 1
     , "Map single" ~: DM.lookup 1 (snd $ snd $ singleton) ~?= Just (Melody 1 1 [])
-    , "incr CID"   ~: fst (CM.add (snd $ singleton) (Melody 2 2 [])) ~?= 2
+    , "incr CID"   ~: fst (IM.add (snd $ singleton) (Melody 2 2 [])) ~?= 2
     , "keep old" ~: DM.lookup 1 newMap ~?= Just (Melody 1 1 [])
     , "store new" ~: DM.lookup 2 newMap ~?= Just (Melody 2 2 [])
     ]
-        where singleton = CM.add CM.empty (Melody 1 1 [])
-              newMap = snd (snd (CM.add (snd $ singleton) (Melody 2 2 [])))
+        where singleton = IM.add IM.empty (Melody 1 1 [])
+              newMap = snd (snd (IM.add (snd $ singleton) (Melody 2 2 [])))
 
 tUpdateWith :: Test
-tUpdateWith = "CM.updateWith" ~: TestList
-    [ "empty" ~: CM.updateWith 1 id CM.empty ~?= Nothing
-    , "id" ~: CM.updateWith 1 id (snd $ singleton) ~?= Just (snd $ singleton)
-    , "diff" ~: CM.updateWith 1 f (snd $ singleton) ~?= Just (snd $ CM.add CM.empty (Melody 2 2 []))
+tUpdateWith = "IM.updateWith" ~: TestList
+    [ "empty" ~: IM.updateWith 1 id IM.empty ~?= Nothing
+    , "id" ~: IM.updateWith 1 id (snd $ singleton) ~?= Just (snd $ singleton)
+    , "diff" ~: IM.updateWith 1 f (snd $ singleton) ~?= Just (snd $ IM.add IM.empty (Melody 2 2 []))
     ]
-        where singleton = CM.add CM.empty (Melody 1 1 [])
+        where singleton = IM.add IM.empty (Melody 1 1 [])
               f = (\_ -> Melody 2 2 [])
 
 tGet :: Test
-tGet = "CM get" ~: TestList
-    [ "empty" ~: CM.get CM.empty 1 ~?= Nothing
-    , "single" ~: CM.get (snd $ singleton) 1 ~?= Just (Melody 1 1 [])
-    , "mult fst" ~: CM.get mult 1 ~?= Just (Melody 1 1 [])
-    , "mult snd" ~: CM.get mult 2 ~?= Just (Melody 2 2 [])
+tGet = "IM get" ~: TestList
+    [ "empty" ~: IM.get IM.empty 1 ~?= Nothing
+    , "single" ~: IM.get (snd $ singleton) 1 ~?= Just (Melody 1 1 [])
+    , "mult fst" ~: IM.get mult 1 ~?= Just (Melody 1 1 [])
+    , "mult snd" ~: IM.get mult 2 ~?= Just (Melody 2 2 [])
     ]
-        where singleton = CM.add CM.empty (Melody 1 1 [])
-              mult = snd $ CM.add (snd singleton) (Melody 2 2 [])
+        where singleton = IM.add IM.empty (Melody 1 1 [])
+              mult = snd $ IM.add (snd singleton) (Melody 2 2 [])
 
 ----------------------- Parser Unit Tests ---------------------------------
 testParser :: Test
-testParser = TestList [ testToPitch, testToPrimitive, testToNote, testToChord, testToComposition ]
+testParser = TestList [ testToPitch, testToPrimitive, testToNote, testToChord, testToComposition 
 
 -- toPitch :: String -> Int -> Pitch
 testToPitch :: Test
