@@ -13,6 +13,9 @@ import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
                         classify,stdArgs,maxSuccess,vectorOf)
 import Control.Monad (liftM,liftM2,liftM3)
 
+main :: IO ()
+main = return ()
+
 -- | A Note consists of a Primitive Pitch (the note to play) and an
 --      InstrumentName (the type of instrument with which to play the note).
 --      These types come from the import library Euterpea.
@@ -20,11 +23,12 @@ data Note = N (Primitive Pitch, InstrumentName) deriving (Show, Eq)
 
 -- | A Chord consists of a list of Notes, which are played together at the same
 --      time.
-data Chord = Chord [Note] deriving (Show, Eq)
+data Chord = Chord {notes :: [Note]} deriving (Show, Eq)
 
 -- | A Melody consists of a tempo, a transpose, and a list of Chords, which are
 --      played in sequence
-data Melody = Melody Rational Int [Chord] deriving (Show, Eq)
+data Melody = Melody {temp :: Rational, tran :: Int, chords :: [Chord]}
+     deriving (Show, Eq)
 
 -- | A Composition consists of a list of Melodies, which are played together at
 --      the same time
@@ -190,78 +194,118 @@ instance Monoid Composition where
     (Composition ms1) `mappend` (Composition ms2) = Composition $ ms1 ++ ms2
 
 -- | stack m1 m2 Returns a new Composition with the argued Melodies stacked
---      together
+--      together.
 stack :: Melody -> Melody -> Composition
 stack m1 m2 = Composition [m1, m2]
 
--- -- stack c1 c2 returns a new composition with the same tempo and trans
--- --     as c1 and chord progression of the form 
--- --     [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ...]
--- --     where cN.K is the Kth chord of the Nth composition
--- --     If length c1 < length c2, excess c2 will be truncated  
--- --     If length c1 > length c2, the following chord progression forms
--- --     [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n, c1.(n+1)++c2.1,c1.(n+2)++c2.2 ...]
--- stack :: Composition -> Composition -> Composition
--- stack (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans $ zipWith mappend c1 (extend c1 c2) where
---         extend l1 = List.take (length l1) . cycle
+-- stack m1 m2 returns a new composition of the form
+--     [m1.1++m2.1,m1.2++m2.2 ... m1.n++m2.n ...]
+--     where mN.K is the Kth chord of the Nth melody
+--     If length m1 < length m2, excess m2 will be truncated  
+--     If length m1 > length m2, the following chord progression forms
+--     [m1.1++m2.1,m1.2++m2.2 ... m1.n++m2.n, m1.(n+1)++m2.1,m1.(n+2)++m2.2 ...]
+stackCycle :: Melody -> Melody -> Composition
+stackCycle m1 m2 = Composition [m1, newm2]
+    where newm2 = Melody (temp m2) (tran m2) (extend (chords m1) (chords m2))
+          extend l1 = List.take (length l1) . cycle
 
--- -- stack c1 c2 returns a new composition with the same tempo and trans
--- --      as c1 and chord progression of the form
--- --      [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ... ]
--- --      where CN.K is the Kth chord of the Nth composition
--- --      If length c1 != length c2, the longer composition is truncated
--- stack2 :: Composition -> Composition -> Composition
--- stack2 (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans $ zipWith mappend c1 c2
 
--- -- stack c1 c2 returns a new composition with the same tempo and trans
--- --      as c1 and chord progression of the form
--- --      [c1.1++c2.1,c1.2++c2.2 ... c1.n++c2.n ...]
--- --      where CN.K is the Kth chord of the Nth composition
--- --      If length c1 < length c2, excess c2 will be truncated
--- --      if length c1 > length c1, excess c1 will be appended to end
--- stack3 :: Composition -> Composition -> Composition
--- stack3 (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans (comb c1 c2) where
---         comb (x:xs) (y:ys) = (mappend x y) : comb xs ys
---         comb [] _          = []
---         comb xs []         = xs
+--THIS FUNCTION MAY DO WHAT STACK DOES.
+-- stack m1 m2 returns a new composition of the form
+--      [m1.1++m2.1,m1.2++m2.2 ... m1.n++m2.n ... ]
+--      where nN.K is the Kth chord of the Nth composition
+--      If length m1 != length m2, the longer composition is truncated
+stackTruncate :: Melody -> Melody -> Composition
+stackTruncate m1 m2 = Composition [newm1, newm2]
+    where newm1 = Melody (temp m1) (tran m1) (List.take len (chords m1))
+          newm2 = Melody (temp m2) (tran m2) (List.take len (chords m2)) 
+          len   = min (length $ chords m1) (length $ chords m2) 
 
--- -- intersperse c1 c2 returns a new composition with the same tempo and trans
--- --      as c1 and chord progression of the form
--- --      [c1.1,c2.2,c1.2,c2.2 ... c1.n,c2.n ...] 
--- --      where CN.K is the Kth chord of the Nth composition
--- --      If length c1 != length c2, the longer composition is truncated
--- intersperse1 :: Composition -> Composition -> Composition
--- intersperse1 (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans (inter1 c1 c2) where
---         inter1 (x:xs) (y:ys) = x : y : inter1 xs ys
---         inter1 [] _          = []
---         inter1 _ []          = []
+-- stack m1 m2 returns a new composition of the form
+--      [m1.1++m2.1,m1.2++m2.2 ... m1.n++m2.n ...]
+--      where CN.K is the Kth chord of the Nth composition
+--      If length m1 < length m2, excess m2 will be truncated
+--      if length m1 > length m1, excess m1 will be appended to end
+stackPreserve :: Melody -> Melody -> Composition
+stackPreserve m1 m2 = Composition [newm1, newm2]
+    where newm1 = Melody (temp m1) (tran m1) (List.take len (chords m1))
+          newm2 = Melody (temp m2) (tran m2) (List.take len (chords m2)) 
+          len   = length $ chords m1
 
--- -- intersperse2 c1 c2 returns a new composition with the same tempo and trans
--- --      as c1 and chord progression of the form
--- --      [c1.1,c2,c1.2,c2 ... c1.n,c2 ...] 
--- --      where CN.K is the Kth chord of the Nth composition
--- intersperse2 :: Composition -> Composition -> Composition
--- intersperse2 (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans (inter2 c1 c2) where
---         inter2 (x:xs) ys = [x] ++ ys ++ inter2 xs ys
---         inter2 [] _     = []
+-- intersperse m1 m2 returns a new composition with the same tempo and trans
+--      as m1 and chord progression of the form
+--      [m1.1,m2.2,m1.2,m2.2 ... m1.n,m2.n ...] 
+--      where CN.K is the Kth chord of the Nth composition
+--      If length m1 != length m2, the longer composition is truncated
+intersperse1 :: Melody -> Melody -> Composition
+intersperse1 m1 m2 = Composition [newm1, newm2]
+    where newm1  = Melody (temp m1) (tran m1) (fst tup)
+          newm2  = Melody (temp m1) (tran m2) (snd tup)
+          tup    = sperse (chords m1) (chords m2)
 
--- -- intersperse2n c1 c2 returns a new composition with the same tempo and trans
--- --      as c1 and chord progression of the form
--- --      [c1.1,c1.2 ... c1.n,c2,c1.(n+1),c1.(n+2), ... c1.2n,c2 ...] 
+-- Takes two lists of chords and places rests between notes in each list such
+--      that notes in each of the two chords take turns playing without any overlap.
+--      A tuple with these modified lists of chords is returned
+sperse :: [Chord] -> [Chord] -> ([Chord], [Chord])
+sperse c1 c2 = foldr f ([],[]) (zip c1 c2)
+    where f = \(a, b) (acc1, acc2) -> (a : gap b : acc1, gap a : b : acc2)
+
+-- Returns a chord containing a rest with a duration of the length of the
+--      longest note in the argued chord
+gap :: Chord -> Chord
+gap (Chord ns) = Chord [N (Rest (len 0 ns), AcousticGrandPiano)]
+    where len 0 ((N (Rest dur, _)):xs) = len (max dur 0) xs
+          len 0 ((N (Note dur _, _)):xs) = len (max dur 0) xs
+          len n [] = n 
+ 
+-- -- intersperse2 m1 m2 returns a new composition with the same tempo and trans
+-- --      as m1 and chord progression of the form
+-- --      [m1.1,m2,m1.2,m2 ... m1.n,m2 ...] 
 -- --      where CN.K is the Kth chord of the Nth composition
--- --      If (mod c1 n != 0), excess c1 is appended to end of comp without c2
--- intersperse2n :: Int -> Composition -> Composition -> Composition
--- intersperse2n n (Melody tempo trans c1) (Melody _ _ c2) =
---     Melody tempo trans (inter3 c1 c2 n num) where
---         num = mod (length c1) n
---         inter3 _ _ _ 0     = []
---         inter3 xs ys n num =
---             (List.take n xs) ++ ys ++ inter3 (List.drop n xs) ys n (num-1)
+intersperse2 :: Melody -> Melody -> Composition
+intersperse2 m1 m2 = Composition [newm1, newm2]
+    where newm1 = Melody (temp m1) (tran m1) (fst tup)
+          newm2 = Melody (temp m1) (tran m2) (snd tup)
+          tup   = sperse2 (chords m1) (chords m2)
+
+
+-- Takes two lists of chords and places rests betweeen notes in each list such
+--      that a chord of the first composition will play followed by the
+--      whole second composition and then the second chord of the first composition
+--      will play followed by the whole second composition and so on.
+sperse2 :: [Chord] -> [Chord] -> ([Chord], [Chord])
+sperse2 c1 c2 = foldr f ([], []) c1
+    where f = \a (acc1, acc2) -> (a : (map gap c2) ++ acc1, gap a : c2 ++ acc2)
+
+-- intersperse2n m1 m2 returns a new composition with the same tempo and trans
+--      as m1 and chord progression of the form
+--      [m1.1,m1.2 ... m1.n,m2,m1.(n+1),m1.(n+2), ... m1.2n,m2 ...] 
+--      where CN.K is the Kth chord of the Nth composition
+--      If (mod m1 n != 0), excess m1 is appended to end of comp without m2
+intersperse2n :: Int -> Melody -> Melody -> Composition
+intersperse2n n m1 m2 = Composition [newm1, newm2]
+  where newm1 = Melody (temp m1) (tran m1) (sperse2na n (chords m1) (chords m2))
+        newm2 = Melody (temp m2) (tran m2) (sperse2nb n (chords m1) (chords m2))
+
+
+-- Helper function for intersperse2n which takes places rests in the first
+-- argued composition every n chords, where each rest is the length of the
+-- second argued composition
+sperse2na :: Int -> [Chord] -> [Chord] -> [Chord]
+sperse2na n [] c2 = []
+sperse2na n c1 c2 = left ++ (map gap c2) ++ (sperse2na n right c2)
+    where left  = List.take n c1
+          right = List.drop n c1
+
+-- Helper function for intersperse2n which takes extends the second argued
+-- composition to the form [c2,rest,c2,rest...], where each rest is the length 
+-- of the next n consecutive chords from the first argued composition
+sperse2nb :: Int -> [Chord] -> [Chord] -> [Chord]
+sperse2nb n [] c2 = []
+sperse2nb n c1 c2 = (map gap (left)) ++ c2 ++ (sperse2nb n right c2)
+    where left  = List.take n c1
+          right = List.drop n c1 
+
 
 -- Arbitrary instances
 
