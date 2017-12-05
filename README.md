@@ -52,3 +52,15 @@ of our project: will there be enough depth if we just focus on the composition a
 another one bites the dust bass: compose ElectricBassFingered a,2,0.0625 g,2,0.0625 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 d,2,0.0625 r,0.125 e,2,0.0625 e,2,0.0625 e,2,0.0625 g,2,0.125 r,0.0625 e,2,0.0625 a,2,0.0625 r,0.25 r,0.125
 
 another one bites the dust drums(kinda): compose Percussion b,3,0.0625 r,0.0625 b,2,0.0625
+
+Runaway drumbeat:
+melodize Percussion fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0
+setTempo 6.0 MID
+
+Runaway piano:
+melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
+
+Runaway:
+compose <piano> <drumbeat>
+
+play c CID
