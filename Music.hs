@@ -13,9 +13,6 @@ import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
                         classify,stdArgs,maxSuccess,vectorOf)
 import Control.Monad (liftM,liftM2,liftM3)
 
-main :: IO ()
-main = return ()
-
 -- | A Note consists of a Primitive Pitch (the note to play) and an
 --      InstrumentName (the type of instrument with which to play the note).
 --      These types come from the import library Euterpea.
