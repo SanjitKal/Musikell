@@ -14,9 +14,10 @@ import Test.QuickCheck (Arbitrary(..), Testable(..), Gen, elements,
   oneof, frequency, sized, quickCheckWith, stdArgs, maxSize,
   classify,  maxSuccess, listOf, resize, scale, (==>))
 
-runTests :: IO ()
-runTests = undefined
-
+main :: IO ()
+main = do _ <- runTestTT tCompMap
+          _ <- runTestTT testParser
+          return ()
 ----------------------- CompositionMap Unit Tests ------------------------
 
 tCompMap = TestList [tEmpty, tAdd, tUpdateWith, tGet]
@@ -37,7 +38,7 @@ tAdd = "IM.add" ~: TestList
 
 tUpdateWith :: Test
 tUpdateWith = "IM.updateWith" ~: TestList
-    [ "empty" ~: IM.updateWith 1 id IM.empty ~?= Nothing
+    [ "empty" ~: IM.updateWith 1 id IM.empty ~?= (Nothing :: Maybe (IM.IncrMap Note))
     , "id" ~: IM.updateWith 1 id (snd $ singleton) ~?= Just (snd $ singleton)
     , "diff" ~: IM.updateWith 1 f (snd $ singleton) ~?= Just (snd $ IM.add IM.empty (Melody 2 2 []))
     ]
@@ -46,7 +47,7 @@ tUpdateWith = "IM.updateWith" ~: TestList
 
 tGet :: Test
 tGet = "IM get" ~: TestList
-    [ "empty" ~: IM.get IM.empty 1 ~?= Nothing
+    [ "empty" ~: IM.get IM.empty 1 ~?= (Nothing :: Maybe (IM.IncrMap Note))
     , "single" ~: IM.get (snd $ singleton) 1 ~?= Just (Melody 1 1 [])
     , "mult fst" ~: IM.get mult 1 ~?= Just (Melody 1 1 [])
     , "mult snd" ~: IM.get mult 2 ~?= Just (Melody 2 2 [])
@@ -56,7 +57,9 @@ tGet = "IM get" ~: TestList
 
 ----------------------- Parser Unit Tests ---------------------------------
 testParser :: Test
-testParser = TestList [ testToPitch, testToPrimitive, testToNote, testToChord, testToComposition 
+testParser = TestList [ testToPitch, testToPrimitive, testToNote, testToChord]
+
+--Add toComposition test
 
 -- toPitch :: String -> Int -> Pitch
 testToPitch :: Test
@@ -111,19 +114,19 @@ testToChord = "toChord" ~: TestList
         i3 = Xylophone
         n3 = Note 4 (F, 4)
 
--- toMeldoy :: String -> [String] -> Composition
-teMeldoy :: Test
-teMeldoy = "toMeldoy" ~: TestList
-    [ "empty"              ~: toMeldoy "" []                     ~?= mempty
-    , "invalid instrument" ~: toMeldoy ""      []                ~?= mempty
-    , "invalid note"       ~: toMeldoy "Flute" ["x"]             ~?= m [c2]
-    , "invalid rest"       ~: toMeldoy "Flute" ["r,t"]           ~?= m [c2]
-    , "single note"        ~: toMeldoy "Flute" ["af,2,1.5"]      ~?= m [c1]
-    , "single rest"        ~: toMeldoy "Flute" ["r,3"]           ~?= m [c7]
-    , "multiple notes"     ~: toMeldoy "Flute" ["aff,3,3|f,4,4"] ~?= m [c4]
-    , "multiple rests"     ~: toMeldoy "Flute" ["r,2|r,3"]       ~?= m [c5]
-    , "rests and notes"    ~: toMeldoy "Flute" ["aff,3,3|r,5"]   ~?= m [c6]
-    , "multiple chords"    ~: toMeldoy "Flute"
+-- testToMelody :: String -> [String] -> Composition
+testToMelody :: Test
+testToMelody = "toMeldoy" ~: TestList
+    [ "empty"              ~: toMelody "" []                     ~?= mempty
+    , "invalid instrument" ~: toMelody ""      []                ~?= mempty
+    , "invalid note"       ~: toMelody "Flute" ["x"]             ~?= m [c2]
+    , "invalid rest"       ~: toMelody "Flute" ["r,t"]           ~?= m [c2]
+    , "single note"        ~: toMelody "Flute" ["af,2,1.5"]      ~?= m [c1]
+    , "single rest"        ~: toMelody "Flute" ["r,3"]           ~?= m [c7]
+    , "multiple notes"     ~: toMelody "Flute" ["aff,3,3|f,4,4"] ~?= m [c4]
+    , "multiple rests"     ~: toMelody "Flute" ["r,2|r,3"]       ~?= m [c5]
+    , "rests and notes"    ~: toMelody "Flute" ["aff,3,3|r,5"]   ~?= m [c6]
+    , "multiple chords"    ~: toMelody "Flute"
         ["f,4,4", "aff,3,3|af,2,1.5", "af,2,1.5", "r,3"]         ~?= m'
     ] where
         n1 = Note 1.5 (Af, 2)

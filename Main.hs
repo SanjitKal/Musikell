@@ -131,17 +131,6 @@ parser mm cm = do
         --                             _ -> (putStrLn "Invalid") >> parser m
         --                     _ -> (putStrLn "Invalid") >> parser m
 
-
-        -- combine :: String -> String -> (Composition -> Composition -> Composition) -> IO ()
-        -- combine cid1 cid2 f = let (cid1', cid2') = (readMaybe cid1 :: Maybe Int, readMaybe cid2 :: Maybe Int) in
-        --                         case (cid1', cid2') of
-        --                             (Just cid1'', Just cid2'') -> let (c1, c2) = (CM.get m cid1'', CM.get m cid2'') in
-        --                                                             case (c1, c2) of
-        --                                                                 (Just c1', Just c2') -> let (cid, m') = CM.add m $ f c1' c2' in
-        --                                                                                         (putStrLn ( "new composition id = " ++ (show cid))) >> parser m'
-        --                                                                 _ -> (putStrLn $ "Cannot find one or more composition IDs") >> parser m
-        --                             _ -> (putStrLn $ "Invalid CID") >> parser m
-
 main :: IO ()
 main = parser IM.empty IM.empty
 
