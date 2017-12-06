@@ -5,6 +5,7 @@ module Music where
 import Data.List
 import qualified Data.List as List
 import Euterpea
+import Data.Monoid
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
@@ -30,12 +31,6 @@ data Melody = Melody {temp :: Rational, tran :: Int, chords :: [Chord]}
 -- | A Composition consists of a list of Melodies, which are played together at
 --      the same time
 data Composition = Composition [Melody] deriving (Show, Eq) -- stack of melodies
-
--- | A Composition consists of a tempo (a Rational number, the tempo of the
---      underlying melody), a transpose (an Int, the transpose of the
---      underlying melody's notes), and a list of Chords, which are played
---      in succession of each other from the head to the tail.
--- data Composition = Melody Rational Int [Chord] deriving (Show, Eq)
 
 -- | A Playable type can be converted into a Music Pitch, which is a type from
 --      the imported Euterpea, which can be played via the machine's speakers
@@ -70,14 +65,6 @@ instance Playable Composition where
     toMusicPitch (Composition [])    = Prim $ Rest 0
     toMusicPitch (Composition (h:t)) =
         toMusicPitch h :=: toMusicPitch (Composition t)
-
--- map transpose over notes (not at composition level)
--- | converts a Composition into a Music Pitch
--- toMusic :: Composition -> Music Pitch
--- toMusic (Melody tempo trans m) = wrapMusic baseMelody controls where
---     baseMelody  = toMusicPitch m
---     controls    = [(Tempo tempo), (Transpose trans)]
---     wrapMusic b = foldr (\c m -> Modify c m) b
 
 -- | mapChord f c Returns a new Chord with the argued function mapped over the
 --      argued Chord's inner list
@@ -125,11 +112,23 @@ reverseComposition (Composition ms) = Composition $ map reverseMelody ms
 collapseMelody :: Melody -> Melody
 collapseMelody (Melody tempo trans m) = Melody tempo trans $ pure $ mconcat m
 
+order :: Melody -> Melody -> (Melody, Melody)
+order m1@(Melody _ _ ms1) m2@(Melody _ _ ms2) =
+    if length ms1 > length ms2 then (m1, m2) else (m2, m1)
+
 -- | collapseComposition1 c Returns a new Composition with all Melodies
 --      of the argued Composition c collapsed into a single Melody, chord by
 --      chord, with the tempo and transpose of the first Melody in c
 collapseComposition1 :: Composition -> Composition
-collapseComposition1 (Composition ms) = undefined
+collapseComposition1 (Composition (m1:ms)) =
+    Composition $ [stackAll m1 ms] where
+        stackAll           = foldl combine
+        combine nm m       = let (m1, m2) = order nm m in
+                             Melody (temp m1) (tran m1)
+                                (comb (chords m1) (chords m2))
+        comb (x:xs) (y:ys) = (x <> y) : comb xs ys
+        comb [] _          = []
+        comb xs []         = xs
 
 -- | collapseComposition2 c Returns a new Composition with all Melodies
 --      of the argued Composition c collapsed into a single Chord, with the
@@ -140,21 +139,21 @@ collapseComposition2 (Composition ms) =
 
 -- | take i m Returns a new Melody with the same tempo and transpose as the
 --      argued Melody m, with the melody consisting of its first i chords.
---      If i <= 0, then Nothing is returned
-take :: Int -> Melody -> Maybe Melody
-take i (Melody tempo trans m) =
+--      If i <= 0, then m is returned
+take :: Int -> Melody -> Melody
+take i m@(Melody tempo trans cs) =
     if i <= 0
-        then Nothing
-        else Just $ Melody tempo trans $ List.take i m
+        then m
+        else Melody tempo trans $ List.take i cs
 
 -- | drop i m Returns a new Melody with the same tempo and transpose as the
 --      argued Melody m, with the melody consisting of all chords after its
---      first i chords. If i >= length of the melody, then Nothing is returned
-drop :: Int -> Melody -> Maybe Melody
-drop i (Melody tempo trans m) =
-    if i >= length m
-        then Nothing
-        else Just $ Melody tempo trans $ List.drop i m
+--      first i chords. If i >= length of the melody, then m is returned
+drop :: Int -> Melody -> Melody
+drop i m@(Melody tempo trans cs) =
+    if i >= length cs
+        then m
+        else Melody tempo trans $ List.drop i cs
 
 -- | splitAt i m Returns a 2-tuple of new Melodies. Each Melody has the same
 --      tempo and transpose as the argued Melody m. The first Melody consists of
@@ -206,8 +205,6 @@ stackCycle m1 m2 = Composition [m1, newm2]
     where newm2 = Melody (temp m2) (tran m2) (extend (chords m1) (chords m2))
           extend l1 = List.take (length l1) . cycle
 
-
---THIS FUNCTION MAY DO WHAT STACK DOES.
 -- stack m1 m2 returns a new composition of the form
 --      [m1.1++m2.1,m1.2++m2.2 ... m1.n++m2.n ... ]
 --      where nN.K is the Kth chord of the Nth composition
