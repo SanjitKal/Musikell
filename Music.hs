@@ -5,6 +5,7 @@ module Music where
 import Data.List
 import qualified Data.List as List
 import Euterpea
+import Data.Monoid
 import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
 
 import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
@@ -108,6 +109,9 @@ transpose trans (Melody tempo _ m) = Melody tempo trans m
 setInstrument :: InstrumentName -> Melody -> Melody
 setInstrument i (Melody tempo trans m) = Melody tempo trans $ setI m where
     setI = fmap $ mapChord (\(N (pp, _)) -> N (pp, i))
+
+repl :: Int -> Melody -> Melody
+repl n m = if n == 0 then mempty else m <> (repl (n-1) m)
 
 -- | reverseMelody m Returns a new Melody with the same tempo and transpose as
 --      the argued Melody c, with the melody reversed
@@ -250,11 +254,24 @@ sperse c1 c2 = foldr f ([],[]) (zip c1 c2)
 -- Returns a chord containing a rest with a duration of the length of the
 --      longest note in the argued chord
 gap :: Chord -> Chord
-gap (Chord ns) = Chord [N (Rest (len 0 ns), AcousticGrandPiano)]
-    where len n [] = n
-          len 0 ((N (Rest dur, _)):xs) = len (max dur 0) xs
-          len 0 ((N (Note dur _, _)):xs) = len (max dur 0) xs
+gap c = Chord [N (Rest (clen (notes c)), AcousticGrandPiano)]
+
+-- Returns the duration of a note
+getDur :: Note -> Rational
+getDur (N (Rest dur, _)) = dur
+getDur (N (Note dur _, _)) = dur
+
+-- Returns the length of the longest note in the argued list of notes
+clen :: [Note] -> Rational
+clen = foldr (\n acc -> max (getDur n) (acc)) 0 
  
+seq :: Melody -> Melody -> Composition
+seq m1 m2 = Composition [m1, newm2]
+    where newm2 = Melody (temp m2) (tran m2) (prerest : (chords m2))
+          prerest = Chord [N (Rest dur, AcousticGrandPiano)]
+          dur = (foldr (\c acc -> clen (notes c) + acc) 0 (chords m1)) * ratio
+          ratio = (temp m2 / temp m1)
+
 -- -- intersperse2 m1 m2 returns a new composition with the same tempo and trans
 -- --      as m1 and chord progression of the form
 -- --      [m1.1,m2,m1.2,m2 ... m1.n,m2 ...] 

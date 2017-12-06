@@ -27,6 +27,7 @@ parser mm cm = do
         -- ["drop", i, mid]                 -> update'' mid i Music.drop
         -- ["splitAt", i, mid]              -> addSplit mid i
         -- ["seq", mid1, mid2]              -> combine mid1 mid2 mappend 
+        ["repl", mid1, n]                -> 
         ["stackCycle", mid1, mid2]       -> compose stackCycle mid1 mid2
         ["stackTruncate", mid1, mid2]    -> compose stackTruncate mid1 mid2
         ["stackPreserve", mid1, mid2]    -> compose stackPreserve mid1 mid2
