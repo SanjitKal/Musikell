@@ -39,10 +39,16 @@ parser mm cm = do
         ["intersperse2n", mid1, mid2, n] -> intersperse2nCompositions mid1 mid2 n
         ["play", "m", mid]               -> playMelody mid
         ["play", "c", cid]               -> playComposition cid
+        ["random",n,e,r]                 -> randomNotes (readMaybe n) (readRational e) (readMaybe r)
         ["quit"]                         -> return ()
         _                                -> (putStrLn "what's up with it?") >> parser mm cm
 
     where
+        randomNotes :: Maybe Int -> Maybe Rational -> Maybe Int -> IO ()
+        randomNotes n e r = case (n, e, r) of
+                                (Just n', Just e', Just r') -> randomMelodyN n' e' r' >> parser mm cm
+                                _ -> (putStrLn "Invalid.") >> parser mm cm
+
         addMelody :: String -> [String] -> IO ()
         addMelody i ns = let (mid, mm') = IM.add mm $ toMelody i ns in
                          (putStrLn ("new melody id = " ++ (show mid))) >> parser mm' cm

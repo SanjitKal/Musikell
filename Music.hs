@@ -395,11 +395,10 @@ instance Arbitrary Composition where
                              (arbitrary :: Gen Melody)
 
 -- Random music :)
-randomMelodyN :: Int -> Rational -> Int -> IO Melody
+randomMelodyN :: Int -> Rational -> Int -> IO ()
 randomMelodyN n tempo trans = do
     m' <- generate m
     play $ toMusicPitch m'
-    return m'
 
     where m = liftM (Melody tempo trans)
                 (vectorOf n (arbitrary :: Gen Chord))
