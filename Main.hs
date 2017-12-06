@@ -25,6 +25,7 @@ parser mm cm = do
         ["collapse", mid]                -> update' mid Music.collapseMelody mm ((flip parser) cm)
         ["collapseC1", cid]              -> update' cid Music.collapseComposition1 cm (parser mm)
         ["collapseC2", cid]              -> update' cid Music.collapseComposition2 cm (parser mm)
+        ["repl", i, mid]                 -> update mid (readMaybe i) Music.repl
         ["take", i, mid]                 -> update mid (readMaybe i) Music.take
         ["drop", i, mid]                 -> update mid (readMaybe i) Music.drop
         ["splitAt", i, mid]              -> addSplit mid i

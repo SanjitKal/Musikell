@@ -96,6 +96,8 @@ setInstrument :: InstrumentName -> Melody -> Melody
 setInstrument i (Melody tempo trans m) = Melody tempo trans $ setI m where
     setI = fmap $ mapChord (\(N (pp, _)) -> N (pp, i))
 
+-- | repl n m Returns a new Melody that consists of the original melody `m`
+--      looped `n` times
 repl :: Int -> Melody -> Melody
 repl n m = if n == 0 then mempty else m <> (repl (n-1) m)
 
