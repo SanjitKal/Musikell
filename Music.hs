@@ -330,6 +330,7 @@ instance Arbitrary InstrumentName where
                       -- , Accordion
                       -- , ChorusedPiano
                       -- , SlapBass2
+                      -- , Flute
                       , VoiceOohs
                       ]
 
@@ -339,7 +340,7 @@ instance Arbitrary (Primitive Pitch) where
     arbitrary = frequency [ (0, rest),
                             (10, sound)] where
         rest  = liftM Rest (arbitrary :: Gen Rational)
-        sound = liftM (\pc -> Note 1.0 ((pc, 4 :: Octave) :: Pitch))
+        sound = liftM2 (\pc o -> Note 1.0 ((pc, o :: Octave) :: Pitch))
                         (elements [ Aff, Af, A, As, Ass,
                                     Bff, Bf, B, Bs, Bss,
                                     Cff, Cf, C, Cs, Css,
@@ -347,6 +348,7 @@ instance Arbitrary (Primitive Pitch) where
                                     Eff, Ef, E, Es, Ess,
                                     Fff, Ff, F, Fs, Fss,
                                     Gff, Gf, G, Gs, Gss])
+                        (elements [ 2, 4, 6 ])
     shrink pc = [pc]
 
 instance Arbitrary Note where

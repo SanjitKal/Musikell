@@ -53,25 +53,48 @@ another one bites the dust bass: compose ElectricBassFingered a,2,0.0625 g,2,0.0
 
 another one bites the dust drums(kinda): compose Percussion b,3,0.0625 r,0.0625 b,2,0.0625
 
+Ode to (lame) joy:
+melodize p e,4,0.5 e,4,0.5 f,4,0.5 g,4,0.5 g,4,0.5 f,4,0.5 e,4,0.5 d,4,0.5 c,4,0.5 c,4,0.5 d,4,0.5 e,4,0.5 e,4,0.75 d,4,0.25 d,4,0.25
+setTempo 2.0 MID
+play m MID
+
 Runaway drumbeat:
-melodize Percussion r,64.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 
-setTempo 8.0 MID1
+melodize Percussion fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0
+
+repl 8 MID1
+
+melodize Percussion r,128.0
+seq MID2 MID1
+
+setTempo 12.8 MID3
 
 Runaway piano:
-melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0 e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
-setTempo 2.0 MID2
+melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
+
+repl 2 MID4
+
+setTempo 1.6 MID4
+
+compose MID4 MID3
 
 Simple Man guitar:
-melodize AcousticGuitarNylon a,3,0.0625 b,3,0.0625 c,3,0.0625 g,3,0.0625 e,3,0.0625 c,3,0.0625 e,5,0.0625 g,3,0.0625 e,3,0.0625 g,3,0.0625 g,2,0.0625 d,3,0.0625 b,3,0.0625 g,2,0.0625 g,3,0.0625 d,3,0.0625 b,3,0.0625 d,3,0.0625 a,3,0.0625 a,4,0.0625 e,3,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 a,4,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 g,4,0.0625 c,4,0.0625 a,3,0.0625 b,3,0.0625
+melodize AcousticGuitarNylon a,3,0.0625 b,3,0.0625
 
-setTempo 0.5 MID1
+melodize AcousticGuitarNylon c,3,0.0625 g,3,0.0625 e,3,0.0625 c,3,0.0625 e,5,0.0625 g,3,0.0625 e,3,0.0625 g,3,0.0625 g,2,0.0625 d,3,0.0625 b,3,0.0625 g,2,0.0625 g,3,0.0625 d,3,0.0625 b,3,0.0625 d,3,0.0625 a,3,0.0625 a,4,0.0625 e,3,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 a,4,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 g,4,0.0625 c,4,0.0625 a,3,0.0625 b,3,0.0625
+
+repl 2 MID2
+
+seq MID1 MID2
+
+setTempo 0.5 MID3
 
 Simple Man drumbeat:
 
-melodize Percussion r,2.125 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625
+melodize Percussion r,2.0 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625
 
-setTempo 0.5 MID2
+setTempo 0.5 MID4
 
+compose MID3 MID4
 
 DO NOT PLAY ANYTHING BELOW THIS LINE
 -----------------------------
