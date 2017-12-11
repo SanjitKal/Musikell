@@ -220,7 +220,7 @@ drop_property n m = n > 0 && n < (length (chords m)) && n < length (chords m) ==
 
 split_property :: Int -> Melody -> Property
 split_property n m = n > 0 && n < (length $ chords m) ==>
-                     let (Just m1, Just sm2) = Music.splitAt n m in
+                     let (Just m1, Just m2) = Music.splitAt n m in
                          length (chords m1) == n && length (chords m2) == length (chords m) - n
 
 
