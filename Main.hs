@@ -130,17 +130,3 @@ parser mm cm = do
 main :: IO ()
 main = parser IM.empty IM.empty
 
-
-
-        --
-        -- can't wait to use monad transformers so I can do something like this:
-        --
-        -- ["setTempo", t, cid] -> readMaybe t >>= \t' -> update cid $ setTempo t'
-        -- ["modifyTempo", d, cid] -> readMaybe d >>= \d' -> update cid $ modifyTempo d'
-        -- ["transpose", t, cid] -> readMaybe t >>= \t' update cid $ transpose t'
-        -- ["setInstrument", i, cid] -> readMaybe i >>= \i' -> update cid $ setInstrument i'
-        -- ["reverse", cid] -> update cid reverse
-        -- ["splitAt", i, cid] -> readMaybe i >>= \i' -> update cid $ splitAt i'
-        -- ["take", i cid] -> readMaybe i >>= \i' -> update cid $ take i'
-        -- ["drop", i, cid] -> readMaybe i >>= \i' -> update cid $ drop i'
-        -- ["collapse", cid] -> update cid collapse

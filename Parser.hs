@@ -209,5 +209,3 @@ toInstrumentName "Applause" = Applause
 toInstrumentName "Gunshot" = Gunshot  
 toInstrumentName "Percussion" = Percussion
 toInstrumentName _ = AcousticGrandPiano
-
--- compose Percussion aff,1,1.0 af,1,1.0 a,1,1.0 as,1,1.0 ass,1,1.0 aff,2,1.0 af,2,1.0 a,2,1.0 as,2,1.0 ass,2,1.0 aff,3,1.0 af,3,1.0 a,3,1.0 as,3,1.0 ass,3,1.0 aff,4,1.0 af,4,1.0 a,4,1.0 as,4,1.0 ass,4,1.0 aff,5,1.0 af,5,1.0 a,5,1.0 as,5,1.0 ass,5,1.0 aff,1,1.0 af,1,1.0 a,1,1.0 as,1,1.0 ass,1,1.0
