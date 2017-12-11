@@ -12,7 +12,7 @@ import qualified IncrMap as IM
 import Test.HUnit (runTestTT,Test(..),Assertion, (~?=), (~:), assert)
 import Test.QuickCheck (Arbitrary(..), Testable(..), Gen, elements,
   oneof, frequency, sized, quickCheckWith, stdArgs, maxSize,
-  classify,  maxSuccess, listOf, resize, scale, (==>))
+  classify,  maxSuccess, listOf, resize, scale, (==>), Property, quickCheck)
 
 main :: IO ()
 main = do _ <- runTestTT tCompMap
@@ -148,75 +148,79 @@ testToMelody = "toMeldoy" ~: TestList
         m  = Melody 1.5 0
         m' = m [c8, c9, c1, c7]
 
------------------------ Unary QuickChecks ---------------------------------
--- setTempo :: Rational -> Composition -> Composition
--- property: setTempo to random Rational, tempo is changed
+----------------------------------Quickchecks-----------------------------------
 
--- modifyTempo :: Rational -> Composition -> Composition
--- property: add or subtract random Rational, tempo is changed
+-- Returns true if every element in l2 is a subset of l1
+subset :: Eq a => [a] -> [a] -> Bool
+subset l1 l2 = all (flip elem $ l2) l1 
 
--- transpose :: Int -> Composition -> Composition
--- property: setTranspose to random Int, trans is changed
+-- If the notes in the first chord are a subset of the notes in the second
+-- chord (and vice versa), then the two chords are 'equivalent', regardless
+-- of the ordering of the individual notes in the chord
+chord_property :: Chord -> Chord -> Bool
+chord_property c1 c2 = let (n1, n2) = (notes c1, notes c2) in
+                           if (subset n1 n2) && (subset n2 n1) then c1 == c2
+                           else c1 /= c2
 
--- setInstrument :: InstrumentName -> Composition -> Composition
--- property: setInstrument to random InstrumentName, instr is changed for every Note
+--- Composition reversed twice is equal to original composition
+reverse_property :: Composition -> Bool
+reverse_property c@(Composition ms) = revrev == c
+    where revrev = Composition (reverse $ reverse ms)
 
--- reverse :: Composition -> Composition
--- property: reverse reverse is same
--- property: reverse is reversed?
--- property: reverse is same length
+-- Individual melodies keep their original length when stacked
+stack_property :: Melody -> Melody -> Bool
+stack_property m1 m2 = let Composition [m1',m2'] = stack m1 m2 in
+                           length (chords m1) == length (chords m1') &&
+                           length (chords m2) == length (chords m2')
 
--- collapse :: Composition -> Composition
--- property: collapse still contains all same notes
--- property: collapse is length 1 afterward (if it was at least length 1 before)
+stack_preserve_property1 :: Melody -> Melody -> Property
+stack_preserve_property1 m1 m2 = length (chords m1) >= length (chords m2) ==>
+                                 let Composition [m1',m2'] = stackPreserve m1 m2 in
+                                 length (chords m1') == length (chords m1) &&
+                                 length (chords m2') == length (chords m2)
 
--- take :: Int -> Composition -> Maybe Composition
--- property: take of random Int is length of random Int after (or less)
+stack_preserve_property2 :: Melody -> Melody -> Property
+stack_preserve_property2 m1 m2 = length (chords m1) < length (chords m2) ==>
+                                 let Composition [m1',m2'] = stackPreserve m1 m2 in
+                                 length (chords m1') == length (chords m1) &&
+                                 length (chords m2') == length (chords m1)
 
--- drop :: Int -> Composition -> Maybe Composition
--- property? 
+-- The length of m1 is preserved after stack cycling m1 and m2
+stack_cycle_property :: Melody -> Melody -> Bool
+stack_cycle_property m1 m2 = let Composition [m1',m2'] = stackCycle m1 m2 in
+                             length (chords m1') == length (chords m1)
 
--- splitAt :: Int -> Composition -> (Maybe Composition, Maybe Composition)
--- property?
+-- When m1 and m2 are stack truncated to form m1' and m2', the length of m1`
+-- and the length of m2' are equal to min(length m1, length m2)
+stack_truncate_property :: Melody -> Melody -> Bool
+stack_truncate_property m1 m2 = let Composition [m1',m2'] = stackTruncate m1 m2
+                                    minl = min (length (chords m1)) (length (chords m2)) in
+                                    length (chords m1') == minl &&
+                                    length (chords m2') == minl
 
------------------------ Binary QuickChecks ---------------------------------
+set_tempo_property :: Rational -> Melody -> Bool
+set_tempo_property r m = temp (setTempo r m) == r
 
--- For composition functions of the form (f c1 c2)
+modify_tempo_property :: Rational -> Melody -> Bool
+modify_tempo_property r m = temp (modifyTempo r m) == r + temp m
 
--- Property for all binary functions: tempo and trans for resulting
--- composition is that of c1
+transpose_property :: Int -> Melody -> Bool
+transpose_property i m = tran (Music.transpose i m) == i
 
--- stack :: Composition -> Composition -> Composition
--- property : len c1 == len c2 => any note in c1 or c2 is in stack c1 c2
--- at same index as in original composition
--- property : the number of times c2 gets copied is = (len c1) mod (len c2)
--- property : length stack c1 c2 = length c1
+-- This may hang due to stack overflow, so you should specifiy low bounds for 'n'
+repl_property :: Int -> Melody -> Property
+repl_property n m = n < 100 ==> length (chords (repl n m)) == length (chords m) * n
 
--- stack2 :: Composition -> Composition -> Composition
--- property : len c1 == len c2 => any note in c1 or c2 is in stack2 c1 c2
--- property : number of occurences of any note in stack c1 c2 = number of
---            occurences in c1 + number of occurences in c2 (if len c1 = len c2)
--- property : all notes that occur at an index i < length c1 & i < length c2 are
---            preserved in stack2 c1 c2
--- property : length of stack c1 c2 = min(length c1, length c2)
+take_property :: Int -> Melody -> Property
+take_property n m = n > 0 && n < length (chords m) ==> length (chords $ Music.take n m) == n
 
--- stack3 :: Composition -> Composition -> Composition
--- property : number of occurences of any note in stack c1 c2 = number of
---            occurences in c1 + number of occurences in c2 (if len c1 = len c2)
+drop_property :: Int -> Melody -> Property
+drop_property n m = n > 0 && n < (length (chords m)) && n < length (chords m) ==>
+                    length (chords $ Music.drop n m) == (length (chords m)) - n
 
--- intersperse1 :: Composition -> Composition -> Composition
--- property : all even indices contain chords from c1
--- property : all odd indices contain chords from c2
--- property : number of occurences of any note, n, in intersperse c1 c2
---            is equal to number of occurences of n1 in c1 + number of 
---            in c2 occurences of n1
+split_property :: Int -> Melody -> Property
+split_property n m = n > 0 && n < (length $ chords m) ==>
+                     let (Just m1, Just sm2) = Music.splitAt n m in
+                         length (chords m1) == n && length (chords m2) == length (chords m) - n
 
--- intersperse2 :: Composition -> Composition -> Composition
--- property : a chord from c1 occurs every index i | i mod (len c2) == 0
--- property : c2 occurs n times in intersperse2 c1 c2, where n = len (c1)
-
--- intersperse2n :: Composition -> Composition -> Composition
--- property : c2 occurs every n indices in intersperse2n c1 c2.
--- property: if c1 mod n != 0, intersperse2n c1 c2 always ends with excess c1, 
---           not c2
 

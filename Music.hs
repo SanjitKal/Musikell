@@ -21,7 +21,11 @@ data Note = N (Primitive Pitch, InstrumentName) deriving (Show, Eq)
 
 -- | A Chord consists of a list of Notes, which are played together at the same
 --      time.
-data Chord = Chord {notes :: [Note]} deriving (Show, Eq)
+data Chord = Chord {notes :: [Note]} deriving (Show)
+
+instance Eq Chord where
+    (==) c1 c2 = subset (notes c1) (notes c2) && subset (notes c2) (notes c1) 
+      where subset l1 l2 = all (flip elem $ l1) l2
 
 -- | A Melody consists of a tempo, a transpose, and a list of Chords, which are
 --      played in sequence
