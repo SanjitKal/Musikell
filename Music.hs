@@ -103,7 +103,7 @@ setInstrument i (Melody tempo trans m) = Melody tempo trans $ setI m where
 -- | repl n m Returns a new Melody that consists of the original melody `m`
 --      looped `n` times
 repl :: Int -> Melody -> Melody
-repl n m = if n == 0 then mempty else m <> (repl (n-1) m)
+repl n m = if n <= 0 then mempty else m <> (repl (n-1) m)
 
 -- | reverseMelody m Returns a new Melody with the same tempo and transpose as
 --      the argued Melody c, with the melody reversed

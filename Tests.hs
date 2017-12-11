@@ -152,7 +152,7 @@ testToMelody = "toMeldoy" ~: TestList
 
 -- Returns true if every element in l2 is a subset of l1
 subset :: Eq a => [a] -> [a] -> Bool
-subset l1 l2 = all (flip elem $ l2) l1 
+subset l1 l2 = all (flip elem $ l1) l2
 
 -- If the notes in the first chord are a subset of the notes in the second
 -- chord (and vice versa), then the two chords are 'equivalent', regardless
@@ -173,22 +173,27 @@ stack_property m1 m2 = let Composition [m1',m2'] = stack m1 m2 in
                            length (chords m1) == length (chords m1') &&
                            length (chords m2) == length (chords m2')
 
+-- When m1 is longer than m2, stackPreserve preserves both original lengths
 stack_preserve_property1 :: Melody -> Melody -> Property
 stack_preserve_property1 m1 m2 = length (chords m1) >= length (chords m2) ==>
                                  let Composition [m1',m2'] = stackPreserve m1 m2 in
                                  length (chords m1') == length (chords m1) &&
                                  length (chords m2') == length (chords m2)
 
+-- When m1 is shorter than m2, stackPreserve truncates m2 to be m1's length
 stack_preserve_property2 :: Melody -> Melody -> Property
 stack_preserve_property2 m1 m2 = length (chords m1) < length (chords m2) ==>
                                  let Composition [m1',m2'] = stackPreserve m1 m2 in
                                  length (chords m1') == length (chords m1) &&
                                  length (chords m2') == length (chords m1)
 
--- The length of m1 is preserved after stack cycling m1 and m2
-stack_cycle_property :: Melody -> Melody -> Bool
-stack_cycle_property m1 m2 = let Composition [m1',m2'] = stackCycle m1 m2 in
-                             length (chords m1') == length (chords m1)
+-- The length of m1 is preserved after stack cycling m1 and m2, the length of
+-- m2' (the cycled m2) is the same as m1
+stack_cycle_property :: Melody -> Melody -> Property
+stack_cycle_property m1 m2@(Melody _ _ l) = not (null l) ==>
+                             let Composition [m1',m2'] = stackCycle m1 m2 in
+                             length (chords m1') == length (chords m1) &&
+                             length (chords m2') == length (chords m1)
 
 -- When m1 and m2 are stack truncated to form m1' and m2', the length of m1`
 -- and the length of m2' are equal to min(length m1, length m2)
@@ -209,7 +214,19 @@ transpose_property i m = tran (Music.transpose i m) == i
 
 -- This may hang due to stack overflow, so you should specifiy low bounds for 'n'
 repl_property :: Int -> Melody -> Property
-repl_property n m = n < 100 ==> length (chords (repl n m)) == length (chords m) * n
+repl_property n m = n < 100 && n >= 0 ==> length (chords (repl n m)) == length (chords m) * n
+
+repl_negative_property :: Int -> Melody -> Property
+repl_negative_property n m = n <= 0 ==> chords (repl n m) == []
+
+collapse_melody_property :: Melody -> Property
+collapse_melody_property m = not (null (chords m)) ==>
+                             let m' = collapseMelody m in
+                             temp m' == temp m && tran m' == tran m &&
+                             length (chords m') == 1 &&
+                             containsAll m' m where
+    containsAll m1 m2 = all (subset ((notes $ head $ chords m1)) . notes) (chords m2)
+
 
 take_property :: Int -> Melody -> Property
 take_property n m = n > 0 && n < length (chords m) ==> length (chords $ Music.take n m) == n
