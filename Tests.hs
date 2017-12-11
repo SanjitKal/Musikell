@@ -1,26 +1,38 @@
 module Tests where
 
+import qualified Data.Map as DM
+import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
+import Test.QuickCheck ((==>), Property, quickCheck)
+
 import Euterpea
 
-import qualified Data.Map as DM
 import Music
 import Parser
-import qualified CompositionMap as CM
 import qualified IncrMap as IM
 
-
-import Test.HUnit (runTestTT,Test(..),Assertion, (~?=), (~:), assert)
-import Test.QuickCheck (Arbitrary(..), Testable(..), Gen, elements,
-  oneof, frequency, sized, quickCheckWith, stdArgs, maxSize,
-  classify,  maxSuccess, listOf, resize, scale, (==>), Property, quickCheck)
-
 main :: IO ()
-main = do _ <- runTestTT tCompMap
+main = do _ <- runTestTT tIncrMap
           _ <- runTestTT testParser
+          quickCheck chord_property
+          quickCheck reverse_property
+          quickCheck stack_property
+          quickCheck stack_preserve_property1
+          quickCheck stack_preserve_property2
+          quickCheck stack_cycle_property
+          quickCheck stack_truncate_property
+          quickCheck set_tempo_property
+          quickCheck modify_tempo_property
+          quickCheck transpose_property
+          quickCheck repl_property
+          quickCheck repl_negative_property
+          quickCheck collapse_melody_property
+          quickCheck take_property
+          quickCheck drop_property
+          quickCheck split_property
           return ()
------------------------ CompositionMap Unit Tests ------------------------
+----------------------- IncrMap Unit Tests --------------------------------
 
-tCompMap = TestList [tEmpty, tAdd, tUpdateWith, tGet]
+tIncrMap = TestList [tEmpty, tAdd, tUpdateWith, tGet]
 
 tEmpty :: Test
 tEmpty = "IM.empty" ~: (fst IM.empty, null $ snd IM.empty) ~?= (1, True)

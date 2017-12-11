@@ -2,17 +2,13 @@
 
 module Music where
 
-import Data.List
 import qualified Data.List as List
-import Euterpea
 import Data.Monoid
-import Test.HUnit (runTestTT, Test(..), Assertion, (~?=), (~:), assert)
+import Control.Monad (liftM, liftM2, liftM3)
+import Test.QuickCheck (Arbitrary(..), Gen(..),
+                        frequency, elements, generate, vectorOf)
 
-import Test.QuickCheck (Arbitrary(..),Gen(..),Property(..),OrderedList(..),
-                        forAll,frequency,elements,sized,oneof,(==>),collect,
-                        quickCheck,sample,choose,quickCheckWith, generate,
-                        classify,stdArgs,maxSuccess,vectorOf)
-import Control.Monad (liftM,liftM2,liftM3)
+import Euterpea
 
 -- | A Note consists of a Primitive Pitch (the note to play) and an
 --      InstrumentName (the type of instrument with which to play the note).

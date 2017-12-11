@@ -2,13 +2,14 @@ module Main where
 
 import Text.Read
 import Numeric (readSigned, readFloat)
-import Parser
+
 import Euterpea (play)
+
+import Parser
 import Music
 import IncrMap
 import qualified IncrMap as IM
 import CompositionMap
-import qualified CompositionMap as CM
 
 parser :: MelodyMap -> CompositionMap -> IO ()
 parser mm cm = do

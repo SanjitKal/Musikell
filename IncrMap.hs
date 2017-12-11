@@ -9,13 +9,13 @@ type IncrMap a = (Int, Map Int a)
 empty :: IncrMap a
 empty = (1, Map.empty)
 
--- | Add the argued value to the argued IncrMap. Return the ID of
--- | the added value along with the updated IncrMap.
+-- | Add the argued value to the argued IncrMap. Return the ID of the added
+--      value along with the updated IncrMap.
 add :: IncrMap a -> a -> (Int, IncrMap a)
 add (k, m) c = (k, (k + 1, Map.insert k c m))
 
--- | Update an existing value with the argued MID in the argued 
--- | IncrMap by applying an argued function to it.
+-- | Update an existing value with the argued MID in the argued IncrMap by
+--      applying an argued function to it.
 updateWith :: Int -> (a -> a) -> IncrMap a -> Maybe (IncrMap a)
 updateWith mid f (k, m) =
     case Map.lookup mid m of
