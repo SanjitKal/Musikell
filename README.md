@@ -1,133 +1,100 @@
 # Musikell
+Welcome to Musikell!
+----------------------------------------------------
+Authors: Matthew Chiaravalloti and Sanjit Kalapatapu
+----------------------------------------------------
+Musikell is an interactive command line interface that allows you to create
+and compose different sounds, chords, and melodies! To run Musikell, type the
+following commands into ghci:
 
-Progress so far: We have defined types for notes, chords, melodies, and modifications. We have defined and implemented some state
-manipulation functions (add, remove, applyMod, etc.).
+> :l Main.hs
+> main
 
-What needs to be done: We need to figure out how to output actual sounds/how sounds are actually represented. Regarding the scope
-of our project: will there be enough depth if we just focus on the composition aspect (excluding the signal aspect)?
+You have now entered our command line interface. Let's create the following
+piano melody using command below:
 
+> melodize p e,4,0.5 e,4,0.5 f,4,0.5 g,4,0.5 g,4,0.5 f,4,0.5 e,4,0.5 d,4,0.5 c,4,0.5 c,4,0.5 d,4,0.5 e,4,0.5 e,4,0.75 d,4,0.25 d,4,0.25
 
--- harmony or melody paramterized by foldable a
+Now, we can set the tempo of our melody by calling our setTempo function on our
+new melody ID.
 
+> setTempo 2.0 (respective melody id)
 
--- harmony quickcheck: order of notes doesn't matter!
--- melody quickcheck: order does matter (think about representations of compositions; is there a way to create library s.t. the data level (==) matches what we considers equivalence to our ears)
+Finally, let's play our modified melody!
 
--- Types we'll need to use from Euterpea
--- Primitive, Music a; Music Pitch
--- Pitch is a tuple of Picthclass and Octave; so we'll have Music a ~ Music Pitch
+> play m (respective melody id)
 
--- haskell project structure: cabal project (like package.json or Gemfile, but for haskell)
+Wow! That sounds familiar... However, we aren't using state of the art, 20th
+century software to create boring 17th century music. Let's try something a
+little more interesting...
 
+Create a percussion beat with the following command.
 
--- 12/2: Notes for next time:
-    - unit test what we currently have
-    - come up with the "cool modifications"
-        - write the type signatures
-        - add quickchecks for these
-        - implement these
-    - tempo is a function over a Composition (map Dur multiplier over each note in the chord?)
-    - Combining Compositions
-        - append C2 to C1
-        - prepend C2 to C1
-        - interleave C2 into C1
-            - (chord-by-chord?)
-            - whole melody C2 between each chord C1
-        - Stack
-            - instruments would be helpful (Modify)
-            - i.e. put drum beat behind each chord or whatever
-    - Manipulating existing Compositions
-        - intersperse
-        - reverse
-        - (list functions)
-        - tempo
+> melodize Percussion fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0
 
+Loop the beat 8 times.
 
-- Matthew: Unary (implement, parser, quickCheck),
-            Unit test: toComposition (and dependents)
-- Sanjit: Binary (implement, parser, quickCheck),
-            Unit test: split and CompositionMap
+> repl 8 (respective melody id)
 
+Create a rest with a duration of 128 beats.
 
-another one bites the dust bass: compose ElectricBassFingered a,2,0.0625 g,2,0.0625 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 e,2,0.1875 r,0.125 d,2,0.0625 r,0.125 e,2,0.0625 e,2,0.0625 e,2,0.0625 g,2,0.125 r,0.0625 e,2,0.0625 a,2,0.0625 r,0.25 r,0.125
+> melodize Percussion r,128.0
 
-another one bites the dust drums(kinda): compose Percussion b,3,0.0625 r,0.0625 b,2,0.0625
+Stick the rest in front of the percussion beat.
 
-Ode to (lame) joy:
-melodize p e,4,0.5 e,4,0.5 f,4,0.5 g,4,0.5 g,4,0.5 f,4,0.5 e,4,0.5 d,4,0.5 c,4,0.5 c,4,0.5 d,4,0.5 e,4,0.5 e,4,0.75 d,4,0.25 d,4,0.25
-setTempo 2.0 MID
-play m MID
+seq (percussion melody id) (rest melody id)
 
-Runaway drumbeat:
-melodize Percussion fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0 r,1.0 fs,2,1.0 fs,2,1.0|b,2,1.0 fs,2,1.0 fs,2,1.0|d,2,1.0 fs,2,1.0 fs,2,1.0 fs,2,1.0
+Set the tempo of this combined melody to 12.8.
 
-repl 8 MID1
+> setTempo 12.8 (combined melody id)
 
-melodize Percussion r,128.0
-seq MID2 MID1
+You can listen to the percussion with the following command:
 
-setTempo 12.8 MID3
+> play m (combined melody id)
 
-Runaway piano:
-melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
+Now that we have the percussion, lets create a piano melody.
 
-repl 2 MID4
+> melodize p e,5,1.0 e,5,1.0 e,5,1.0 e,4,1.0 ef,5,1.0 ef,5,1.0 ef,5,1.0 ef,4,1.0 df,5,1.0 df,5,1.0 df,5,1.0 df,4,1.0 a,4,1.0 a,4,1.0 af,4,1.0 e,5,1.0
 
-setTempo 1.6 MID4
+Loop the piano melody 2 times.
 
-compose MID4 MID3
+> repl 2 (piano melody id)
+
+Set the tempo of the piano melody to 1.6.
+
+> setTempo 1.6 (piano melody id)
+
+You can listen to the piano melody with the following command:
+ 
+> play m (piano melody id)
+
+Now lets combine the percussion and piano (make sure to use the final percussion
+and piano melody ids)
+
+> compose (percussion melody id) (piano melody id)
+
+Play the resulting composition with the following command:
+
+> play c (composition id)
+
+To the initiated ear, this sounds like "Runaway" by Kanye West. That's what we're
+talking about!
+--------------------------------------------------------------------------------
+Here is the melody and percussion for Simple Man by Lynyrd Skynard!
 
 Simple Man guitar:
-melodize AcousticGuitarNylon a,3,0.0625 b,3,0.0625
+> melodize AcousticGuitarNylon a,3,0.0625 b,3,0.0625
 
-melodize AcousticGuitarNylon c,3,0.0625 g,3,0.0625 e,3,0.0625 c,3,0.0625 e,5,0.0625 g,3,0.0625 e,3,0.0625 g,3,0.0625 g,2,0.0625 d,3,0.0625 b,3,0.0625 g,2,0.0625 g,3,0.0625 d,3,0.0625 b,3,0.0625 d,3,0.0625 a,3,0.0625 a,4,0.0625 e,3,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 a,4,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 g,4,0.0625 c,4,0.0625 a,3,0.0625 b,3,0.0625
+> melodize AcousticGuitarNylon c,3,0.0625 g,3,0.0625 e,3,0.0625 c,3,0.0625 e,5,0.0625 g,3,0.0625 e,3,0.0625 g,3,0.0625 g,2,0.0625 d,3,0.0625 b,3,0.0625 g,2,0.0625 g,3,0.0625 d,3,0.0625 b,3,0.0625 d,3,0.0625 a,3,0.0625 a,4,0.0625 e,3,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 a,4,0.0625 a,3,0.0625 c,4,0.0625 a,4,0.0625 e,3,0.0625 g,4,0.0625 c,4,0.0625 a,3,0.0625 b,3,0.0625
 
-repl 2 MID2
+> repl 2 (second guitar id)
 
-seq MID1 MID2
+> seq (first melody id) (second melody id)
 
-setTempo 0.5 MID3
+> setTempo 0.5 (combined melody id)
 
-Simple Man drumbeat:
+> melodize Percussion r,2.0 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625
 
-melodize Percussion r,2.0 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625
+> setTempo 0.5 (percussion melody id)
 
-setTempo 0.5 MID4
-
-compose MID3 MID4
-
-DO NOT PLAY ANYTHING BELOW THIS LINE
------------------------------
-
-c = kick
-as = crash cymbal
-css = snare
-ess = closed hi-hat
-
-melodize AcousticGuitarNylon 
-a,4,0.0625 b,4,0.0625
-c,4,0.0625 g,4,0.0625 e,4,0.0625 c,4,0.0625
-e,5,0.0625 g,4,0.0625 e,4,0.0625 g,4,0.0625
-g,3,0.0625 d,4,0.0625 b,4,0.0625 g,3,0.0625
-g,4,0.0625 d,4,0.0625 b,4,0.0625 d,4,0.0625 
-a,4,0.0625 a,5,0.0625 e,4,0.0625 a,4,0.0625 
-c,5,0.0625 a,5,0.0625 e,4,0.0625 a,5,0.0625 
-a,4,0.0625 c,5,0.0625 a,5,0.0625 e,4,0.0625 
-g,5,0.0625 c,5,0.0625 a,4,0.0625 b,4,0.0625
-
-melodize Percussion 
-ess,2,0.0625 ess,2,0.0625
-c,2,0.0625|as,2,0.0625 ess,2,0.0625 ess,2,0.0625
-c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625
-ess,2,0.0625 c,2,0.0625|as,2,0.0625 ess,2,0.0625
-ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625
-ess,2,0.0625 ess,2,0.0625 c,2,0.0625|as,2,0.0625
-ess,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625
-ess,2,0.0625 ess,2,0.0625 c,2,0.0625 ess,2,0.0625
-c,2,0.0625 ess,2,0.0625 c,2,0.0625 css,2,0.0625 ess,2,0.0625 ess,2,0.0625 ess,2,0.0625
-
-
-Runaway:
-compose MID1 MID2
-
-play c CID
+> compose (combined guitar melody id) (percussion melody id)
