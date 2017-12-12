@@ -42,7 +42,7 @@ Create a rest with a duration of 128 beats.
 
 Stick the rest in front of the percussion beat.
 
-seq (percussion melody id) (rest melody id)
+seq (rest melody id) (percussion melody id)
 
 Set the tempo of this combined melody to 12.8.
 
