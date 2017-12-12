@@ -20,6 +20,7 @@ main = do _ <- runTestTT tIncrMap
           quickCheck stack_preserve_property2
           quickCheck stack_cycle_property
           quickCheck stack_truncate_property
+          quickCheck stack_no_order_property
           quickCheck set_tempo_property
           quickCheck modify_tempo_property
           quickCheck transpose_property
@@ -214,6 +215,14 @@ stack_truncate_property m1 m2 = let Composition [m1',m2'] = stackTruncate m1 m2
                                     minl = min (length (chords m1)) (length (chords m2)) in
                                     length (chords m1') == minl &&
                                     length (chords m2') == minl
+
+stack_no_order_property :: Melody -> Melody -> Bool
+stack_no_order_property m1 m2 = let Composition [m1', m2']   = stack m1 m2 in
+                                let Composition [m2'', m1''] = stack m2 m1 in
+                                length (chords m1) == length (chords m1') &&
+                                length (chords m2) == length (chords m2') &&
+                                length (chords m1) == length (chords m1'') &&
+                                length (chords m2) == length (chords m2'')
 
 set_tempo_property :: Rational -> Melody -> Bool
 set_tempo_property r m = temp (setTempo r m) == r
