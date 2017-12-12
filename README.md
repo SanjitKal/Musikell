@@ -1,11 +1,45 @@
 # Musikell
 Welcome to Musikell!
 ----------------------------------------------------
-Authors: Matthew Chiaravalloti and Sanjit Kalapatapu
+Authors:  Matthew Chiaravalloti and Sanjit Kalapatapu
+Pennkeys: mattch and sanjitk
 ----------------------------------------------------
 Musikell is an interactive command line interface that allows you to create
-and compose different sounds, chords, and melodies! To run Musikell, type the
-following commands into ghci:
+and compose different sounds, chords, and melodies!
+
+Dependencies:
+`cabal update`
+`cabal install Euterpea`
+
+- Mac/Linux only: install a MIDI software synthesizer, such as SimpleSynth or
+                  Fluidsynth. Make sure it’s running before you start Euterpea
+                  in GHCi.
+
+Overview:
+(You should read through the files in the order listed below)
+- Tests.hs - This file contains unit tests and quick check properties. Reading
+             through this first should give you a rough idea of how our types
+             are set up and what a client should expect by using them.
+
+- IncrMap.hs - This file is a simple wrapper over the Data.Map type; it handles
+               keys for the client by keeping a running Int (starting at 1).
+
+- CompositionMap.hs - This file lists two specific type instances of IncrMap
+
+- Parser.hs - This file has several utility functions for turning Strings into
+              the relevant datatypes for the rest of the project
+
+- Music.hs - This is THE file. This is where we define our types for
+             representing music in different, layered components. Also, this is
+             where the functions operating over music live, along with Arbitrary
+             instances for the relevant types.
+
+- Main.hs - This file has CLI component and main function. The parser function
+            in this file accepts user commands and performs the appropriate
+            actions. After each command, it passes the new state of the program
+            along in a recursive call.
+
+To run Musikell, type the following commands into ghci:
 
 > :l Main.hs
 > main
